@@ -1,0 +1,211 @@
+% ------ headers globales -------------
+\documentclass[11pt, a4paper, twoside]{article}
+\usepackage{header}
+\usepackage{config}
+\usepackage[lined, boxed, linesnumbered, commentsnumbered]{algorithm2e}
+% -------------------------------------
+\begin{document}
+
+% -- Carátula --
+%\clearpage{\pagestyle{empty}\input{caratula}\cleardoublepage}
+
+%% =====================================================================
+
+Dado un grafo simple $G = (V,E)$ y un entero $k$, se define una $k$-partición de $G$ como
+una partición de $V$ en $k$ conjuntos de vértices $V_{1} \dots V_{k}$. Y, dada una función
+de peso definida sobre las aristas de $G$, el peso de una $k$-partición es la suma de los pesos
+de las aristas intrapartición. Todos los pesos son positivos.
+
+\begin{enumerate}
+    \item Se pide desarrollar los siguientes puntos:
+    \begin{enumerate}
+		\item Relacionar el problema de k-PMP con el problema 3 del TP 1: 
+			  \par Primero que nada, es importante aclarar que en problema de las $k$-PMP, siempre
+			  vamos a querer que los $k$ conjuntos sean todos no vacíos. Esto es así porque
+			  sino podríamos tomar alguno de los conjuntos no vacíos, $V_{i}$ y dividirlo en dos.
+			  Como todos los pesos de las aristas son positivos, seguro que el peso total de la nueva
+			  partición es menor o igual que el peso total de la partición original (si al dividir a
+			  $V_{i}$ me deshize de alguna arista, el peso disminuyó. Sino, el peso permaneció igual
+			  que antes). \\
+			  El problema 3 del TP 1 consistía en, dada una matriz de peligrosidad, que 
+			  nos decía cuál era
+			  el peligro de juntar cada par de productos en un mismo camión,  determinar alguna
+			  posible asignación de $n$ productos en $k$ camiones de manera tal que en ninguno
+			  de los $k$ camiones se sobrepasase cierto umbral $M$ de peligrosidad. \\
+			  Podríamos pensar a cada producto como un nodo de un grafo simple $G = (V,E)$, donde 
+			  $|V| = n$ y cada par de nodos $u,v$ están conectados por una arista $e = (u,v)$ de
+			  peso igual a la peligrosidad que generan los productos $u$ y $v$ al estar en un
+			  mismo camión. Viendo al problema de esta manera, podríamos concluir que:
+			  \begin{enumerate}
+			      \item si pudiéramos encontrar una \textbf{asignación de los $n$ productos a $k$ 
+			      camiones} (con la peligrosidad total de cada camión menor o igual que $M$) tal
+			      que la suma total de peligrosidad generada por todos los camiones sea $S$, 
+			      entonces podemos estar seguros de que la $k$-PMP del grafo $G$ va a ser 
+			      \textbf{por lo menos} tan buena como la solución encontrada para el problema
+			      de asignar los $n$ productos en $k$ camiones (podemos tomar la partición tal
+			      que el $nodo_{i} \in V_{j}$ sii $producto_{i} \in camion_{j}$).
+			      Sin embargo, podría haber alguna $k$-PMP en la
+			      cual se sobrepase el umbral $M$ para algún $V_{i} \in \{V_{1} \dots V_{k}\}$
+			      pero en la que $ \sum\limits_{i=1}^k peligrosidad(V_{i}) < S$. Setear
+			      $M = \infty$, no nos serviría, pues el algoritmo del problema 3 del TP 1 
+			      devolvería una solución que sólo utiliza un único camión, y no $k$ camiones,
+			      que es lo que necesitaríamos.
+			      
+			      \item si no pudiéramos encontrar ninguna asignación de $n$ productos en $k$ 
+			      camiones con la peligrosidad de cada camión menor que $M$, entonces no podemos
+			      asegurar nada sobre la existencia de una $k$-PMP de mínimo peso, pues en la
+			      $k$-PMP no tenemos ninguna restricción sobre el peso máximo generado por cada
+			      elemento de la partición. A menos que $M = \infty$, en cuyo caso podríamos
+			      asegurar que el problema de las $k$-PMP tampoco tendría solución.
+			      
+			      \item si \textbf{sí pudiéramos} encontrar una $k$-PMP de peso total $X \leq kM$
+			      tal que, además, $(\forall i=1 \dots k) peso(V_{i}) \leq M$ entonces podríamos
+			      utilizar esa misma partición ($nodo_{i} \in V_{j}$ sii $producto_{i} \in 
+			      camion_{j}$) como solución a nuestro viejo problema del TP 1. Por el contrario,
+			      si existiera $V_{j} \in \{V_{1} \dots V_{k}\}$ tal que $peso(V_{j}) > M $ 
+			      entonces no podríamos asegurar nada sobre dicho problema, y deberíamos resolver
+			      el problema usando algún otro método.
+			      
+			      \item si \textbf{no pudiéramos} encontrar una $k$-PMP, de peso
+			      total $X \leq kM$, entonces \textbf{seguro}  que en el problema de los camiones
+			      no nos alcanzarían $k$ camiones para meter los $n$ productos. Esto es así porque
+			      el no existir $k$-PMP de peso menor que $kM$, quiere decir que no hay forma de 
+			      distribuir los $n$ productos en $k$ camiones sin sobrepasarme en al menos uno
+			      de los camiones del límite $M$ (si la hubiera, hubiéramos podido hallar alguna
+			      $k$-PMP tal que en ninguno de los camiones se sobrepase el límite $M$ y nos 
+			      serviría como solución para el problema de los camiones).
+			      
+			  \end{enumerate}
+		
+		\item Relacionar el problema de $k$-PMP con el problema de coloreo de los vértices
+		      de un grafo.
+		      Primero que nada, hay que decir que por más que tengamos un método para hallar
+		      un $k$-coloreo de un grafo, es muy probable que esto nos nos sirva para hallar una
+		      $k$-PMP de dicho grafo puesto que el $k$-coloreo no considera el valor de las 
+		      aristas de $G$ sino que simplemente se preocupa por hacer un análisis de 
+		      adyacencias y no-adyacencias entre los nodos de dicho grafo.
+		      
+		      Si somos capaces de determinar una $k$-PMP para cualquier grafo, entonces también
+		      somos capaces de determinar la existencia de un $k$-coloreo para cualquier
+		      grafo y, si existe, podemos dar explícitamente uno de estos. \\
+		      Tomemos el grafo $G$ para el cual queremos hallar un 
+		      $k$-coloreo. Para todo par de nodos $f=(u,v)$ que sean adyacentes, modificar el peso
+		      de la arista que los une y ponerle un nuevo peso: peso($f$) = $\infty$.
+		      Para los pares de nodos $u,v$ que no sean adyacentes, agregar
+		      una arista $e=(u,v)$ que los una, y tal que $peso(e) = 1$. Luego, buscamos
+		      alguna $k$-PMP en el nuevo grafo $G'$. Si el peso total generado por dicha 
+		      partición es menor que infinito, entonces quiere decir que encontramos $k$ 
+		      conjuntos de vértices tales que en cada conjunto no hay ningún par de vértices 
+		      unidos por una arista de peso infinito (i.e. en cada conjunto, no puede haber
+		      dos nodos que fueran adyacentes en $G$, porque sino en $G'$ habría un eje
+		      intrapartición que uniría a estos nodos y haría que el peso total del conjunto
+		      se vaya a infinito).
+		      Entonces, suponiendo que cada $V_{i}$ es no vacío,  
+		      si a cada nodo $x \in V_{i}$ asignamos el color $i$, vamos a tener que
+		      para todo par de nodos $u,v \in V(G)$ $color(u)=color(v) \rightarrow $ $u$ y $v$ 
+		      no son adyacentes en $G$. Entonces, habremos encontrado un $k$-coloreo para el
+		      grafo $G$. Si sólo tuviéramos $t < k$ conjuntos no vacíos, sólo 
+		      podríamos asegurar que encontramos un $t$-coloreo para el grafo $G$. Pero seguro que
+		      esto no sucede, porque como ya explicamos en el punto $(a)$, $k$-PMP va a utilizar las
+		      $k$ particiones (si utilizara sólo $t$ particiones, partiendo uno de los conjuntos de 
+		      dicha partición sólo se podría mejorar la solución actual). \\
+ 
+		      
+		\item Describir situaciones de la vida real que puedan modelarse utilizando k-PMP.
+		Algunas situaciones de la vida cotidiana divertidas que pueden ser modeladas utilizando
+		$k$-PMP podrían ser:
+			  \begin{enumerate}
+				\item Quiero distribuir a $n$ alumnos en $k$ aulas de forma que estos se intenten
+				copiar lo menos posible en el examen: La probabilidad de que un alumno se intente
+				copiar en el examen es mayor cuanto más cómodo se sienta el alumno en el aula. 
+				Y un alumno
+				se siente más cómodo en el aula cuanto mayor sea la sumatoria del índice de 
+				confianza que tiene con el resto de los alumnos de su aula.
+				
+				\item Un alumno busca distribuir $n$ materias en $k$ cuatrimestres minimizando
+				sus horas extra de estudio, si cada par de materias que son cursadas en el mismo
+				cuatrimestre hacen que el alumno tenga que estudiar cierta cantidad de horas extra
+				para poder aprobarlas.
+				\item Se cuenta con $n$ prendas de ropa y con una lavadora. Dependiendo de qué prendas
+				de ropa se metan al mismo tiempo, el lavarropas tarda más o menos tiempo en lavarlas. Se busca 
+				seleccionar $k$ conjuntos de prendas tales que se minimize el tiempo total que la 
+				lavadora esta encendida.
+			  \end{enumerate}
+    \end{enumerate}
+    
+    \item Diseñar una \textbf{heurística constructiva golosa} para $k$-PMP y desarrollar los siguientes
+    puntos:
+    \begin{enumerate}
+		\item Explicar detalladamente el algoritmo implementado:
+		La heurística que pensamos se basa en algunas observaciones claves: 
+		\begin{enumerate}
+			\item la primera, es que nuestro
+			algoritmo goloso va a tener que ir agregando nodos a cada uno de los conjuntos según algún criterio. Y,
+			como lo que se quiere es minimizar la suma total de los costos de los conjuntos, podríamos agregar
+			cada nodo al conjunto en el cuál este agrega el menor peso posible. Entonces, según esta observación,
+			si llamamos $w_{i}$ al peso total del conjunto $S_{i}$, 
+			agregaríamos el nodo $t$ al conjunto $S_{i}$ tal que se minimize $w_{i}$.
+			\item la segunda, es que si no tenemos cuidado, haciendo sólo lo que pensamos en el punto anterior,
+			en algún punto de la ejecución de nuestro algoritmo, podríamos tener dos conjuntos $S_{i}$ y $S_{j}$ tales
+			que $|S_{i}| = 3$ y $|S_{j}| = 20$ y que $t$ agregara el mismo peso $h$ a cualquiera de los conjuntos y el
+			algoritmo elijiese meter el nodo $t$ en $S_{i}$.
+			Sin embargo, como estamos trabajando con un grafo $G$ aleatorio, 
+			en ese caso, lo más probable sería que el nodo $t$ que procesamos 
+			agregue menor peso a $S_{i}$ que a $S_{j}$, puesto que $S_{i}$ tiene una menor cantidad de 
+			nodos, lo cual hace que sea menos probable que alguno de estos nodos tenga conexión con el nodo $t$. Luego,
+			si esto no fuera así (como en el ejemplo que estamos analizando), sino que $t$ agregara el mismo peso a
+			ambos conjuntos, uno quisiera agregar $t$ al conjunto $S_{j}$ con el objetivo de juntar en el mismo 
+			conjunto a nodos que tienen muchas aristas en común pero que al mismo tiempo estas aristas no suman
+			mucho peso y en conjuntos diferentes a nodos que tienen pocas aristas en común pero con mucho peso
+			asociado a estas.
+			\item otra idea que se podría sumar a esta heurísitica sería recorrer los nodos que vamos agregando a
+			cada conjunto no de forma aleatoria sino agregándolos en algún orden. Por ejemplo, agregando primero
+			los nodos que generan mayor peso total con todos sus vecinos.
+		\end{enumerate}
+		A continuación exponemos un pseudocódigo para el algoritmo que implementamos. \\
+		\begin{algorithm}[H]
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+		  \Input{n: cantidad de nodos, m: cantidad de aristas, k: cantidad de conjuntos, G: grafo}
+		  \Output{res: lista de enteros tal que res[i] contiene el índice del conjunto al cuál pertenece el nodo i}
+		  vector$<int>$ conjuntos \\
+		  vector$<int>$ tam-conjuntos \\
+		  \For{cada nodo i = 1 $\dots$ n}{
+				\For{cada conjunto j = 1 $\dots$ k}{
+					-calcular $m$ = índice del conjunto que, al agregarle el nodo $i$ se le agrega el menor
+					valor $v$ posible, donde $v$ es el cociente entre el peso que se le agrega al conjunto
+					$m$ al agregarle el nodo $i$ y la cantidad de elementos que tenía el conjunto $m$  \\
+					-agregar nodo $i$ al conjunto $m$ (conjuntos[$m$] = $i$) \\
+				}
+		  }
+		  return conjuntos
+		\caption{Algoritmo 1}
+		\end{algorithm}
+		
+		\item Calcular el orden de complejidad de peor caso del algoritmo:
+		El algoritmo que desarrollamos utiliza dos $for$, que van uno entre $1 \dots n$ y otro entre $1..k$.
+		Si la complejidad de lo que hay adentro de estos ciclos es $O(T(n))$, entonces la complejidad total
+		del algoritmo sería $O(knT(n))$. \\
+		Dentro de estos ciclos lo que hacemos es determinar a qué conjunto $m$ agregar el nodo $i$. Para esto,
+		lo que hacemos es recorrer para el nodo actual los $k$ conjuntos ($O(k)$) y en cada pasada calculamos 
+		cuál sería el costo que generaría agregar el nodo $i$ al conjunto $k$. Esto lo hacemos de forma lineal 
+		en $|V(G)|$, a partir de haber guardado el grafo $G$ en una estructura conveniente. Luego, 
+		$T(n) = O(kn)$. \\
+		Entonces, la complejidad de nuestro algoritmo en el peor caso es $ O(knT(n)) = O(k^2 n^2)$.
+		
+		\item Describir instancias de $k$-PMP para las cuales la heurística no proporciona una solución
+		óptima. Indicar qué tan mala puede ser la solución respecto de la solución óptima.
+		
+		
+		\item Realizar una experimentación que permita observar la performance del algoritmo en términos
+		de tiempo de ejecución en función del tamaño de la entrada.
+    \end{enumerate}
+\end{enumerate}
+
+
+
+
+
+%% =====================================================================
+
+\end{document}
