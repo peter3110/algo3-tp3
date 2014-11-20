@@ -14,20 +14,18 @@
 Dado un grafo simple $G = (V,E)$ y un entero $k$, se define una $k$-partición de $G$ como
 una partición de $V$ en $k$ conjuntos de vértices $V_{1} \dots V_{k}$. Y, dada una función
 de peso definida sobre las aristas de $G$, el peso de una $k$-partición es la suma de los pesos
-de las aristas intrapartición. Todos los pesos son positivos.
+de las aristas intrapartición. Todos los pesos son positivos. Entonces, es importante notar que
+siempre que busquemos una $k$-PMP, y si $k < n$, no vamos a tener ninguna partición vacía. Puesto 
+que si tuviéramos alguna partición $V_{i}$ vacía, podríamos dividir a alguna otra partición no
+vacía $V_{j}$ en dos: $V_{j'}$ y $V_{i}$, quedando una $k$-PMP de menor peso (porque los pesos de
+todas las aristas son positivos y al dividir en dos el conjunto $V_{j}$ puede ser que nos hayamos
+deshecho de algunas aristas).
 
 \begin{enumerate}
     \item Se pide desarrollar los siguientes puntos:
     \begin{enumerate}
 		\item Relacionar el problema de k-PMP con el problema 3 del TP 1: 
-			  \par Primero que nada, es importante aclarar que en problema de las $k$-PMP, siempre
-			  vamos a querer que los $k$ conjuntos sean todos no vacíos. Esto es así porque
-			  sino podríamos tomar alguno de los conjuntos no vacíos, $V_{i}$ y dividirlo en dos.
-			  Como todos los pesos de las aristas son positivos, seguro que el peso total de la nueva
-			  partición es menor o igual que el peso total de la partición original (si al dividir a
-			  $V_{i}$ me deshize de alguna arista, el peso disminuyó. Sino, el peso permaneció igual
-			  que antes). \\
-			  El problema 3 del TP 1 consistía en, dada una matriz de peligrosidad, que 
+			  \par El problema 3 del TP 1 consistía en, dada una matriz de peligrosidad, que 
 			  nos decía cuál era
 			  el peligro de juntar cada par de productos en un mismo camión,  determinar alguna
 			  posible asignación de $n$ productos en $k$ camiones de manera tal que en ninguno
@@ -56,12 +54,15 @@ de las aristas intrapartición. Todos los pesos son positivos.
 			      asegurar nada sobre la existencia de una $k$-PMP de mínimo peso, pues en la
 			      $k$-PMP no tenemos ninguna restricción sobre el peso máximo generado por cada
 			      elemento de la partición. A menos que $M = \infty$, en cuyo caso podríamos
-			      asegurar que el problema de las $k$-PMP tampoco tendría solución.
+			      asegurar que el problema de las $k$-PMP tampoco tendría solución. Entonces, podemos
+			      afirmar que el problema de las $k$-PMP es \textbf{más fácil} que el de los camiones:
+			      si asignamos a $M$ un valor lo suficientemente grande, vamos a poder afirmar que la
+			      solución al problema de los camiones es la misma que la del problema de las $k$-PMP.
 			      
 			      \item si \textbf{sí pudiéramos} encontrar una $k$-PMP de peso total $X \leq kM$
 			      tal que, además, $(\forall i=1 \dots k) peso(V_{i}) \leq M$ entonces podríamos
 			      utilizar esa misma partición ($nodo_{i} \in V_{j}$ sii $producto_{i} \in 
-			      camion_{j}$) como solución a nuestro viejo problema del TP 1. Por el contrario,
+			      camion_{j}$) como solución al problema de los camiones. Por el contrario,
 			      si existiera $V_{j} \in \{V_{1} \dots V_{k}\}$ tal que $peso(V_{j}) > M $ 
 			      entonces no podríamos asegurar nada sobre dicho problema, y deberíamos resolver
 			      el problema usando algún otro método.
@@ -73,7 +74,9 @@ de las aristas intrapartición. Todos los pesos son positivos.
 			      distribuir los $n$ productos en $k$ camiones sin sobrepasarme en al menos uno
 			      de los camiones del límite $M$ (si la hubiera, hubiéramos podido hallar alguna
 			      $k$-PMP tal que en ninguno de los camiones se sobrepase el límite $M$ y nos 
-			      serviría como solución para el problema de los camiones).
+			      serviría como solución para el problema de los camiones). Luego, en principio no 
+			      podemos asegurar que el problema de los camiones sea \textit{más fácil} que el de
+			      las $k$-PMP.
 			      
 			  \end{enumerate}
 		
@@ -126,6 +129,7 @@ de las aristas intrapartición. Todos los pesos son positivos.
 				sus horas extra de estudio, si cada par de materias que son cursadas en el mismo
 				cuatrimestre hacen que el alumno tenga que estudiar cierta cantidad de horas extra
 				para poder aprobarlas.
+				
 				\item Se cuenta con $n$ prendas de ropa y con una lavadora. Dependiendo de qué prendas
 				de ropa se metan al mismo tiempo, el lavarropas tarda más o menos tiempo en lavarlas. Se busca 
 				seleccionar $k$ conjuntos de prendas tales que se minimize el tiempo total que la 
@@ -133,35 +137,28 @@ de las aristas intrapartición. Todos los pesos son positivos.
 			  \end{enumerate}
     \end{enumerate}
     
+    \newpage
     \item Diseñar una \textbf{heurística constructiva golosa} para $k$-PMP y desarrollar los siguientes
     puntos:
     \begin{enumerate}
+    
 		\item Explicar detalladamente el algoritmo implementado:
 		La heurística que pensamos se basa en algunas observaciones claves: 
 		\begin{enumerate}
 			\item la primera, es que nuestro
-			algoritmo goloso va a tener que ir agregando nodos a cada uno de los conjuntos según algún criterio. Y,
+			algoritmo goloso va a ir agregando nodos a cada uno de los conjuntos según algún criterio. Y,
 			como lo que se quiere es minimizar la suma total de los costos de los conjuntos, podríamos agregar
-			cada nodo al conjunto en el cuál este agrega el menor peso posible. Entonces, según esta observación,
+			cada nodo al conjunto en el cuál este agrega el menor peso posible y dejarlo en ese conjunto. 
+			Entonces, según esta observación,
 			si llamamos $w_{i}$ al peso total del conjunto $S_{i}$, 
 			agregaríamos el nodo $t$ al conjunto $S_{i}$ tal que se minimize $w_{i}$.
-			\item la segunda, es que si no tenemos cuidado, haciendo sólo lo que pensamos en el punto anterior,
-			en algún punto de la ejecución de nuestro algoritmo, podríamos tener dos conjuntos $S_{i}$ y $S_{j}$ tales
-			que $|S_{i}| = 3$ y $|S_{j}| = 20$ y que $t$ agregara el mismo peso $h$ a cualquiera de los conjuntos y el
-			algoritmo elijiese meter el nodo $t$ en $S_{i}$.
-			Sin embargo, como estamos trabajando con un grafo $G$ aleatorio, 
-			en ese caso, lo más probable sería que el nodo $t$ que procesamos 
-			agregue menor peso a $S_{i}$ que a $S_{j}$, puesto que $S_{i}$ tiene una menor cantidad de 
-			nodos, lo cual hace que sea menos probable que alguno de estos nodos tenga conexión con el nodo $t$. Luego,
-			si esto no fuera así (como en el ejemplo que estamos analizando), sino que $t$ agregara el mismo peso a
-			ambos conjuntos, uno quisiera agregar $t$ al conjunto $S_{j}$ con el objetivo de juntar en el mismo 
-			conjunto a nodos que tienen muchas aristas en común pero que al mismo tiempo estas aristas no suman
-			mucho peso y en conjuntos diferentes a nodos que tienen pocas aristas en común pero con mucho peso
-			asociado a estas.
+						
 			\item otra idea que se podría sumar a esta heurísitica sería recorrer los nodos que vamos agregando a
-			cada conjunto no de forma aleatoria sino agregándolos en algún orden. Por ejemplo, agregando primero
-			los nodos que generan mayor peso total con todos sus vecinos.
+			cada conjunto no de forma aleatoria sino recorriéndolos en algún orden. Por ejemplo, ordenando los nodos
+			según el peso de la máxima arista que incide en él.
+			
 		\end{enumerate}
+		
 		A continuación exponemos un pseudocódigo para el algoritmo que implementamos. \\
 		\begin{algorithm}[H]
 		\SetKwInOut{Input}{input}
@@ -170,17 +167,56 @@ de las aristas intrapartición. Todos los pesos son positivos.
 		  \Output{res: lista de enteros tal que res[i] contiene el índice del conjunto al cuál pertenece el nodo i}
 		  vector$<int>$ conjuntos \\
 		  vector$<int>$ tam-conjuntos \\
-		  \For{cada nodo i = 1 $\dots$ n}{
+		  ordenar $G$ según el peso de la máxima arista incidente a cada nodo \\
+		  \For{cada nodo i = 1 $\dots$ n de $G$ }{
 				\For{cada conjunto j = 1 $\dots$ k}{
 					-calcular $m$ = índice del conjunto que, al agregarle el nodo $i$ se le agrega el menor
-					valor $v$ posible, donde $v$ es el cociente entre el peso que se le agrega al conjunto
-					$m$ al agregarle el nodo $i$ y la cantidad de elementos que tenía el conjunto $m$  \\
+					peso \\
 					-agregar nodo $i$ al conjunto $m$ (conjuntos[$m$] = $i$) \\
 				}
 		  }
 		  return conjuntos
 		\caption{Algoritmo 1}
 		\end{algorithm}
+		
+		Un ejemplo de entrada y salida para nuestro algoritmo podrían ser el grafo de la 
+		Figura 0.0.1. En el ejemplo, se busca una 3-PMP.
+		
+		\begin{figure}[H]
+		\includegraphics[scale=1]{imagenes/ej2.png}
+		\caption{Instancia 1}
+		\end{figure}
+		
+\begin{minipage}[t]{0.4\textwidth}
+\begin{Verbatim}[frame=single,framesep=1cm,label= Ejemplo de entrada: instancia 1]
+8 10 3
+1 2 1
+2 6 1
+2 3 5
+2 7 2
+6 7 1
+7 5 3
+3 5 8
+5 4 2
+5 8 2
+4 8 10
+\end{Verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+\begin{Verbatim}[frame=single,framesep=1cm,label= Ejemplo de salida: instancia 1]
+1 1 2 3 1 3 1 2
+\end{Verbatim}
+\end{minipage}
+		
+		En el ejemplo, primero el algoritmo ordena los nodos del grafo $G$ según el peso de sus máximas
+		aristas. Es decir con el orden: 1 6 7 2 3 5 4 8 (en caso de empate, ordena según la suma de las aristas
+		incidentes a los nodos). Luego, recorre esta lista de nodos y los va agregando de a uno al conjunto que
+		dicho nodo agrega menos peso. Por ejemplo, primero agrega los nodos 1 y 6 al conjunto 1, y luego como el
+		nodo 7 agrega 2 unidades de peso al conjunto 1 pero 0 al 2 (porque el conjunto 2 todavía no tiene ningún
+		nodo), entonces agregamos el nodo 7 al conjunto 2. Con un razonamiento similar, en el próximo paso asignamos
+		el nodo 2 al conjunto 3. De esta forma, se llega a la asignación de conjuntos 1 1 2 3 1 3 1 2 a cada uno de
+		los nodos del grafo.
 		
 		\item Calcular el orden de complejidad de peor caso del algoritmo:
 		El algoritmo que desarrollamos utiliza dos $for$, que van uno entre $1 \dots n$ y otro entre $1..k$.
@@ -196,9 +232,168 @@ de las aristas intrapartición. Todos los pesos son positivos.
 		\item Describir instancias de $k$-PMP para las cuales la heurística no proporciona una solución
 		óptima. Indicar qué tan mala puede ser la solución respecto de la solución óptima.
 		
+		Veamos dos ejemplos en los que nuestra heurística no funciona correctamente. En estos ejemplos,
+		la solución es infinitamente peor que la óptima.
+		
+		\begin{figure}[H]
+			\begin{minipage}{.6\textwidth}
+			\centering
+			\includegraphics[width=.8\linewidth]{imagenes/ej3_11}
+			\caption{Ejemplo 1 - solución de la heurística}
+			\end{minipage}
+			\begin{minipage}{.6\textwidth}
+			\includegraphics[width=.8\linewidth]{imagenes/ej3_12}
+			\caption{Ejemplo 1 - solución óptima}
+			\end{minipage}
+		\end{figure}
+		
+		En el ejemplo 1, se busca una 2-PMP de un grafo $G$. Como las aristas internas tienen todas peso
+		infinito, la solución óptima es la de la Figura 0.0.3, con peso 0. Sin embargo, la solución de 
+		nuestra heurística devuelve la solución de la Figura 0.0.2, de peso infinito. El problema radica en 
+		que cada par de nodos que son adyacentes, al sólo enfocarnos en agregarlo al conjunto que agrega el mínimo
+		peso posible, terminamos agregando cada par de nodos del ciclo a conjuntos diferentes. El problema es que 
+		al hacer esto nos quedamos sin conjuntos libres, y cuando tengamos que agregar el último nodo a algún
+		conjunto, no va a importar cuál elijamos, en todos este va a agregar peso infinito. Este problema se
+		generaliza para las $k$-PMP, siempre que suceda que al momento de procesar un nodo con todas sus aristas de
+		peso infinito (o muy grande), todas estas aristas estén unidas a nodos que ya tienen asignados la totalidad
+		de los $k$ conjuntos. Entonces, nos quedamos sin conjuntos para meter al nuevo nodo, y a cualquier conjunto de
+		los ya creados que agreguemos este nodo, va a sumar un peso infinito (o muy grande).
+		
+		\begin{figure}[H]
+		\begin{minipage}{.6\textwidth}
+		\centering
+		\includegraphics[width=.8\linewidth]{imagenes/ej3_21}
+		\caption{Ejemplo 2 - solución de la heurística}
+		\end{minipage}
+		\begin{minipage}{.6\textwidth}
+		\includegraphics[width=.8\linewidth]{imagenes/ej3_22}
+		\caption{Ejemplo 2 - solución óptima}
+		\end{minipage}
+		\end{figure}
+		
+		En el ejemplo 2, se busca la 2-PMP del grafo $G$. Dicho grafo es bipartito, a excepción del nodo extra que 
+		agregamos, que está unido a un nodo en cada uno de los conjuntos. Si llamamos $V_{1}$ y $V_{2}$ a los
+		conjuntos del subgrafo bipartito, asumimos que cada arista que va de un conjunto a otro pesa 1. Entonces, 
+		la solución óptima sería la de la figura 0.0.6. Sin embargo, la solución de nuestra huerística podría ser la 
+		dada por la figura 0.0.5. En un caso, el costo total es infinito y en el otro es $M$, con $M < \infty$. 
+		Esto sucede porque al recorrer los nodos según los que tienen la mínima arista, primero se llenan los dos 
+		conjuntos con nodos de $V_{1}$ y $V_{2}$ y por último se agrega el nodo extra. En este caso, si la heurística
+		hubiera sido ordenar los nodos según la máxima arista, la solución hubiera sido la correcta. \\
+		
 		
 		\item Realizar una experimentación que permita observar la performance del algoritmo en términos
 		de tiempo de ejecución en función del tamaño de la entrada.
+    \end{enumerate}
+    
+    \item Diseñar una heurística de búsqueda local para $k$-PMP y desarrollar los siguientes puntos:
+    \begin{enumerate}
+		\item Explicar detalladamente el algoritmo implementado. Plantear al menos dos vecindades disintas
+		para la búsqueda. \\
+		En el algoritmo que implementamos seguimos los siguientes pasos:
+		\begin{enumerate}
+			\item asignamos de forma aleatoria uno de los $k$ conjuntos a cada nodo
+			\item mientras haya alguna solución vecina mejor que la actual, actualizamos todos los
+			      conjuntos de nodos y el peso de la solución
+			\item repetimos los dos pasos anteriores hasta que no haya una solución vecina mejor ó, hasta
+			      haberlo repetido una cantidad límite de $x$ veces.
+		\end{enumerate}
+		La razón por la cual repetimos el proceso para varias soluciones iniciales es porque dependiendo
+		de la solución inicial que consideremos, hallaremos un mínimo local distinto. Con lo cuál, para
+		que la probabilidad de hallar el mínimo global sea lo más alta posible, hay que considerar 
+		la mayor cantidad de soluciones iniciales distintas posible.
+		
+		Para poder garantizar que este algoritmo termina, debemos ser capaces de demostrar que dada
+		cualquier secuencia de soluciones $s_{1} \dots s_{t}$, no puede suceder que $s_{1} = s_{t}$.
+		
+		Las dos vecindades que definimos fueron:
+		\begin{enumerate}
+			\item para cada nodo, chequear si cambiándolo a algún otro conjunto, se podría reducir el costo
+			      total de la solución. Un pseudocódigo para el algoritmo implementado sería:
+			      
+			      \begin{algorithm}
+					\SetKwInOut{Input}{input}
+					\SetKwInOut{Output}{output}
+					  \Input{grafo $G$, solución parcial $v$}
+					  \Output{modifica $v$ y genera una nueva solución parcial, $v'$}
+					  
+					  \For{cada nodo $i = 1 \dots n$}{
+						\For{$j = $ cada conjunto $1 \dots k$}{
+							costoDelNodoViejo = calcularCosto($G$, $v$, $i$) \\
+							$v' = $ cambiar nodo $i$ al conjunto $j$ \\
+							costoDelNodoViejo = calcularCosto($G$, $v'$, $i$) \\
+							\If{costoDelNodoNuevo $<$ costoDelNodoViejo}{
+								$v = v'$ \\
+								actualizo costo de $v$ (en $O(1)$) \\
+								res = 1 \\
+							}
+							\If{costoDelNodoNuevo $\geq$ costoDelNodoViejo}{
+								res = 0 \\
+							}
+						}
+					  }
+					  return res \\
+					\caption{Algoritmo de búsqueda local con vecindad 1}
+					\end{algorithm}
+			     \textbf{Nota: } La función calcularCosto(G,v,i) recorre los nodos adyacentes al nodo $i$, y acumula la suma
+					            de las aristas que unen a $i$ con algún otro nodo adyacente a $i$ en la solución actual
+			     
+			\item para cada conjunto de $i$ nodos, chequear si cambiándolos a otro conjunto, se podría reducir el costo
+				  total de la solución. Un pseudocódigo para el algoritmo implementado sería:
+				  
+				  \begin{algorithm}
+					\SetKwInOut{Input}{input}
+					\SetKwInOut{Output}{output}
+					  \Input{}
+					  \Output{}
+					  
+					\caption{Algoritmo de búsqueda local con vecindad }
+					\end{algorithm}
+				  
+		\end{enumerate}
+		
+		En el caso de la primera vecindad, una instancia posible y su solución serían (partiendo de la solución 
+		aleatoria inicial 3 3 3 3 1 2 3 3). \\
+		
+\begin{minipage}[t]{0.4\textwidth}
+\begin{Verbatim}[frame=single,framesep=1cm,label= Ejemplo de entrada]
+8 10 3
+1 2 1
+2 6 1
+2 3 5
+2 7 2
+6 7 1
+7 5 3
+3 5 8
+5 4 2
+5 8 2
+4 8 10
+\end{Verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+\begin{Verbatim}[frame=single,framesep=1cm,label= Ejemplo de salida: vecindad 1]
+2 1 3 2 1 2 3 3
+\end{Verbatim}
+\hfill
+\begin{Verbatim}[frame=single,framesep=1cm,label= Ejemplo de salida: vecindad 2]
+? ? ? ? ? ? ? ?
+\end{Verbatim}
+\end{minipage}
+		
+		Vale aclarar que esperamos que, para distintas vecindades, en general nos den resulados diferentes. \\
+		
+		\item Calcular el orden de complejidad temporal de peor caso de una iteración del algoritmo de búsuqeda local
+			  (para las vecindades planteadas). Y si es posible, dar una cota superior para la cantidad de iteraciones
+			  de la heurística. 
+			  
+			  En el caso de la vecindad 1, el costo de cada iteración del algoritmo de búsqueda local es $O(kn^2)$ y esto
+			  se deduce fácilmente del pseudocódigo presentado en el punto anterior (empleamos dos $for$, y adentro de uno
+			  de estos, llamamos a una función que calcula el costo de agregar el nodo a un conjunto, cuyo costo computacional
+			  es $O(n)$, pues cada nodo es adyacente como máximo a $n-1$ nodos).
+			  
+	    \item Realizar una experimentación que permita observar la performance del algoritmo comparando los tiempos
+			  de ejecución y la calidad de las soluciones obtenidas, en función de las vecindades utilizadas y elegir,
+			  si es posible, la configuración que mejores resultados provea pra el grupo de instancias utilizado.
     \end{enumerate}
 \end{enumerate}
 
