@@ -8,7 +8,7 @@
 #define INF 100000007
 #define MAX_ITER 100000				// limito tiempo de búsqueda de algún minimo local
 #define CANT_RAND_INICIALES 1000	// utilizo varios puntos iniciales para iniciar busqueda local
-#define CANT_NODOS_VECINDAD_2		// cantidad de nodos que cambio de conjunto para vecindad 2
+#define CANT_NODOS_VECINDAD_2 2		// cantidad de nodos que cambio de conjunto para vecindad 2
 using namespace std;
 
 /* Estructuras auxiliares */
@@ -24,7 +24,7 @@ pair<vector<int>, double> solucion_inicial_aleatoria(int n, int k);
 pair<vector<int>, double> hallar_minimo(int n, int m, int k, vector< pair< pair<int, int>, double> > &G, pair<vector<int>, double> &v, int vecindad);
 vector<nodoaux> generar_grafo_nodos(vector< pair< pair<int, int>, double > > &G, int n);
 vector<int> cantidadPorConjunto(vector<int> &v, int k);
-double calcular_costo_conj_inicial(vector<int> &conjuntos, vector<nodoaux> &G2, int vecindad, vector<int> &cant_por_conj);
+double calcular_costo_conj_inicial(vector<int> &conjuntos, vector<nodoaux> &G2);
 int procesar_vecindad( int n, int m, int k, vector<nodoaux> &G, pair<vector<int>, double> &v , int vecindad, vector<int> &cant_por_conj);
 double calcular_costo1( vector<nodoaux> &G, int n, pair<vector<int>, double> &v, int nodo_i );
 
@@ -33,6 +33,8 @@ int main() {
 	
   /* para testear */
   //~ freopen("../grafos aleatorios/input.in", "r", stdin);
+  
+  //~ freopen("input.in","r",stdin);
   freopen("input.in","r",stdin);
   
   
@@ -42,7 +44,7 @@ int main() {
   read(n,m,k,G);
   
   /* Determino con que tipo de vecindad resolver */
-  int vecindad = 1;
+  int vecindad = 2;
   
   /* resuelvo con la función minlocal */
   pair<vector<int>, double> ans = minlocal(n,m,k,G,1,vecindad);
@@ -72,6 +74,11 @@ double calcular_costo1( vector<nodoaux> &G, int n, pair<vector<int>, double> &v,
   return res;
 }
 
+int prox_conj(int conj, int k, int excepcion) { 
+	int res = (conj+1)%k; 
+	if (res == excepcion) {return res + 1;}
+	return res;
+}
 
 int procesar_vecindad( int n, int m, int k, vector<nodoaux> &G, pair<vector<int>, double> &v , int vecindad, vector<int> &cant_por_conj) 
 {
@@ -81,10 +88,10 @@ int procesar_vecindad( int n, int m, int k, vector<nodoaux> &G, pair<vector<int>
 	   * el costo. En ese caso, lo cambio de cjto. y devuelvo 1. Si no hay ningún nodo que cumpla esto, devuelvo 0. */
 	  for(int i=1; i<=n; i++) {
 		  for(int j=1; j<=k; j++) {
-			   int meguardo = v.first[i];
-			   double costo_de_nodo_viejo, costo_de_nodo_nuevo;
+			  int meguardo = v.first[i];
+			  double costo_de_nodo_viejo, costo_de_nodo_nuevo;
 			   
-				   /* Siempre uso el costo1 */
+			  /* Siempre uso el costo1 */
 			  costo_de_nodo_viejo = calcular_costo1(G, n, v, i);	  // O(n), cambio de conjunto al nodo i para ver que pasa
 			  v.first[i] = j;
 			  cant_por_conj[j]++; cant_por_conj[meguardo]--;
@@ -105,8 +112,70 @@ int procesar_vecindad( int n, int m, int k, vector<nodoaux> &G, pair<vector<int>
 		  }  
 	  }
   } else if (vecindad == 2) {
-	 /* para cada conjunto de CANT_NODOS_VECINDAD_2 nodos, los cambio de conjunto y veo si mejoro el costo cambiándolos de conjunto */
-     	
+	 /* vecindad 2:  para cada nodo, me fijo si swappeandolo de conjunto con algún otro nodo mejoro el costo. En ese caso,
+	  * los swappeo. También me fijo si agregando el nodo a un conjunto vacío se reduce el costo, y dependiendo de cuánto se 
+	  * reduzca el costo, decido si swappeo los nodos o si agrego el nodo al conjunto vacío. */
+	 for(int i=1; i<=n; i++) {
+		 
+		int nodo_modificado_1 = -1;
+		int nodo_modificado_2 = -1;
+		double costo_original = v.second;
+		/* Calculo el mejor swap que puedo hacer */
+		for(int j=1; j<=n && j!= i; j++) {
+			double costo_de_nodo_viejo_1, costo_de_nodo_viejo_2; 
+			double costo_de_nodo_nuevo_1, costo_de_nodo_nuevo_2;
+			
+			/* Siempre uso el costo1 */
+			costo_de_nodo_viejo_1 = calcular_costo1(G,n,v,i);
+			costo_de_nodo_viejo_2 = calcular_costo1(G,n,v,j);
+
+			swap(v.first[i], v.first[j]);
+			
+			costo_de_nodo_nuevo_1 = calcular_costo1(G,n,v,i);
+			costo_de_nodo_nuevo_2 = calcular_costo1(G,n,v,j);
+			
+			double costo_viejo = costo_de_nodo_viejo_1 + costo_de_nodo_viejo_2;
+			double costo_nuevo = costo_de_nodo_nuevo_1 + costo_de_nodo_nuevo_2;
+			
+			if(costo_nuevo < costo_viejo) {
+				res = 1;
+				v.second = v.second - costo_viejo + costo_nuevo;
+				nodo_modificado_1 = i;
+				nodo_modificado_2 = j;
+		    } else {
+				swap(v.first[i], v.first[j]);
+			}
+	    }
+	    
+	    /* Calculo el mejor conjunto vacío al que puedo mandar al nodo (si es que lo hay) - hay que verificar si se pudo
+	     * mejorar con algún swappeo o no (ver nodo_modificado_1 o nodo_modificado_2) */
+	    int conjunto_vacio = -1;
+	    
+		for(int t=1; t<=k; t++) {
+			if(cant_por_conj[t] == 0) { conjunto_vacio = t; break; }
+		}
+	    
+	    if(conjunto_vacio != -1 && nodo_modificado_1 != -1) {		// hay algún conjunto vacío y swapié dos nodos
+			swap(v.first[nodo_modificado_1], v.first[nodo_modificado_2]);
+			int meguardo = v.first[i];
+			v.first[i] = conjunto_vacio;
+			double costo_nodo_quitado = calcular_costo1(G,n,v,i);
+			if(costo_original - costo_nodo_quitado < v.second) {		// es más efectivo mandar el nodo al conjunto vacío
+				v.second -= costo_nodo_quitado;					// dejo las modificaciones y arreglo el costo
+				cant_por_conj[i]--;
+				cant_por_conj[conjunto_vacio]++;
+			} else {
+				v.first[i] = meguardo;
+				swap(v.first[nodo_modificado_1], v.first[nodo_modificado_2]);	// deshago los cambios y dejo el costo como estaba
+			}
+		} else if(conjunto_vacio != -1){
+			double costo_nodo_quitado = calcular_costo1(G,n,v,i);
+			v.first[i] = conjunto_vacio;
+			v.second -= costo_nodo_quitado;
+			cant_por_conj[i]--;
+			cant_por_conj[conjunto_vacio]++;
+		}
+	 }
 	
   }
   return res;
@@ -116,23 +185,25 @@ pair<vector<int>, double> hallar_minimo(int n, int m, int k, vector<nodoaux> &G2
 {
   int hay_vecindad_mejor = 1;
   int max_cant_iteraciones = MAX_ITER;
+  int contador = 0;
   while(hay_vecindad_mejor && max_cant_iteraciones > 0) {
       hay_vecindad_mejor = procesar_vecindad(n,m,k,G2,v,vecindad,cant_por_conj);
       max_cant_iteraciones--;
+      contador++;
   }
+  cout << "Cantidad de iteraciones: " << contador << endl;
   return v;
 }
 
-double calcular_costo_conj_inicial(vector<int> &conjuntos, vector<nodoaux> &G2, int vecindad, vector<int> &cant_por_conj) {		// O(n*n)
+double calcular_costo_conj_inicial(vector<int> &conjuntos, vector<nodoaux> &G2) {		// O(n*n)
   double res1 = 0;
   for(int i=1; i<(int)conjuntos.size(); i++) {
-	  //~ int conjActual = conjuntos[G2[i].valor];
 	  for(int j=0; j<(int)G2[i].adyacentes.size(); j++) {
 	        if(conjuntos[G2[i].valor] == conjuntos[G2[i].adyacentes[j].first]) {
 			    res1 += G2[i].adyacentes[j].second;
-				}
 			}
-	  } 
+	  }
+  } 
   
  return res1/2.0;
 }
@@ -168,7 +239,7 @@ pair<vector<int>, double> minlocal(int n, int m, int k, vector< pair< pair<int, 
 	  
 	  vector<int> v1_conj         = solucion_inicial_aleatoria(n,k,G2,vecindad);
 	  vector<int> cant_por_conj   = cantidadPorConjunto(v1_conj, k);
-	  double v2_costo             = calcular_costo_conj_inicial(v1_conj,G2,vecindad,cant_por_conj);
+	  double v2_costo             = calcular_costo_conj_inicial(v1_conj,G2);
 	  
 	  //~ cout << "Costo inicial: " << v2_costo << endl;
 	  
