@@ -302,9 +302,6 @@ deshecho de algunas aristas).
 		que la probabilidad de hallar el mínimo global sea lo más alta posible, hay que considerar 
 		la mayor cantidad de soluciones iniciales distintas posible.
 		
-		Para poder garantizar que este algoritmo termina, debemos ser capaces de demostrar que dada
-		cualquier secuencia de soluciones $s_{1} \dots s_{t}$, no puede suceder que $s_{1} = s_{t}$.
-		
 		Las dos vecindades que definimos fueron:
 		\begin{enumerate}
 			\item para cada nodo, chequear si cambiándolo a algún otro conjunto, se podría reducir el costo
@@ -337,22 +334,88 @@ deshecho de algunas aristas).
 			     \textbf{Nota: } La función calcularCosto(G,v,i) recorre los nodos adyacentes al nodo $i$, y acumula la suma
 					            de las aristas que unen a $i$ con algún otro nodo adyacente a $i$ en la solución actual
 			     
-			\item para cada conjunto de $i$ nodos, chequear si cambiándolos a otro conjunto, se podría reducir el costo
-				  total de la solución. Un pseudocódigo para el algoritmo implementado sería:
+			\item para cada nodo, chequear si swappeandolo de conjunto con otro nodo ó mandándolo a un conjunto que esté
+			      vacío se reduce el costo.
 				  
 				  \begin{algorithm}
 					\SetKwInOut{Input}{input}
 					\SetKwInOut{Output}{output}
-					  \Input{}
-					  \Output{}
+					  \Input{grafo $G$, solución parcial $v$}
+					  \Output{modifica $v$ y genera una nueva solución parcial, $v'$}
 					  
-					\caption{Algoritmo de búsqueda local con vecindad }
+					  \For{ cada nodo $i = 1 \dots n$ }{
+						
+						nodoModificado1 = -1 \\
+						nodoModificado2 = -1 \\
+						costoOriginal = v.second \\
+						
+						\For{ cada nodo $j = 1 \dots n$ }{
+						
+							costoNodoViejo1 = calcularCosto(G,n,v,i) \\
+							costoNodoViejo2 = calcularCosto(G,n,v,j) \\
+							
+							swap(v.first[i], v.first[j])	// swapeo los nodos de conjunto \\
+							
+							costoNodoNuevo1 = calcularCosto(G,n,v,i) \\
+							costoNodoNuevo2 = calcularCosto(G,n,v,j) \\
+							
+							costoViejo = costoNodoViejo1 + costoNodoViejo2 \\
+							costoNuevo = costoNodoNuevo1 + costoNodoNuevo2 \\
+							
+							\eIf{costoNuevo $<$ costoViejo}{
+								res = 1 \\
+								v.second = v.second - costoViejo + costoNuevo \\
+								nodoModificado1 = i \\
+								nodoModificado2 = j 		// guardo los nodos con los que hice el swap \\
+							}{
+								swap(v.first[i], v.first[j])	// reestablezco el swapeo que habíamos hecho \\
+							}
+							
+							
+						}
+						
+						conjuntoVacio = indice de algun conjunto vacio 	// O(k) \\
+						\If{ conjuntoVacio es un indice valido }{
+							encontreMejorSeparado = 0 \\
+							meGuardoCosto = v.second \\
+							meGuardoNodoCambiado = -1 \\
+							
+							\If{ hicimos algun swap }{
+								swap(v.first[nodoModificado1], v.first[nodoModificado2]) // deshacemos el swap para ver si convenia cambiar
+																							algun nodo al conjunto vacio\\
+							}
+							
+							\For{ cada nodo $j = 1 \dots n$ }{
+								deltaCostoDelCambio = calcularCosto(G,n,v,j) \\
+								costoDelCambio = costoOriginal - deltaCostoDelCambio \\
+								\If{costoDelCambio $<$ meGuardoCosto}{	// si encontre un nodo mejor que el ultimo encontrado \\
+									meGuardoCosto = costoDelCambio \\
+									meGuardoNodoCambiado = j \\
+									encontreMejorSeparado = 1 // quiere decir que es mejor cambiar un nodo a un conjunto vacio que 
+																 hacer el swap que habiamos hecho\\
+								}
+							}
+							
+							// Ahora me fijo si debo reestablecer el swapeo que habia hecho o no \\
+							\eIf{encontreMejorSeparado == 1 y habiamos hecho algun swap}{
+								swap(v.first[nodoModificado1], v.first[nodoModificado2]) \\
+							}{
+								v.second = meGuardoCosto \\
+								v.first[meGuardoNodoCambiado] = conjuntoVacio \\
+								Actualizo la cantidad de nodos que tengo por conjunto 	// O(1) \\
+								
+							}				
+						}
+					}
+					  
+					\caption{Algoritmo de búsqueda local con vecindad 2}
 					\end{algorithm}
 				  
 		\end{enumerate}
 		
-		En el caso de la primera vecindad, una instancia posible y su solución serían (partiendo de la solución 
+		En el caso de la primera  y segunda vecindad, una instancia posible y su solución serían (partiendo de la solución 
 		aleatoria inicial 3 3 3 3 1 2 3 3). \\
+
 		
 \begin{minipage}[t]{0.4\textwidth}
 \begin{Verbatim}[frame=single,framesep=1cm,label= Ejemplo de entrada]
@@ -376,13 +439,18 @@ deshecho de algunas aristas).
 \end{Verbatim}
 \hfill
 \begin{Verbatim}[frame=single,framesep=1cm,label= Ejemplo de salida: vecindad 2]
-? ? ? ? ? ? ? ?
+3 3 3 3 1 3 3 2
 \end{Verbatim}
 \end{minipage}
 		
-		Vale aclarar que esperamos que, para distintas vecindades, en general nos den resulados diferentes. \\
+		Vale aclarar que es esperable que, para distintas vecindades, en general nos den resulados diferentes. Además, en este ejemplo
+		en particular, usando la vecindad 2 obtenemos una solución muy mala (de costo total igual a 10), mientras que para la vecindad 1,
+		obtenemos una solución buena (costo total igual a 0). En este ejemplo en particular, como inicialmente no hay ningún conjunto vacío,
+		cuando utilizemos la vecindad 2, sólo se van a efectuar swaps de nodos entre conjuntos, y la cantidad de nodos que hay en cada conjunto
+		se va a mantener invariante (si hubiera algún conjunto vacío de seguro se le agregaría un nodo a dicho conjunto, ya que al cambiar un nodo
+		a un conjunto vacío, se reduce mucho la porción del costo total asociada a dicho nodo). \\
 		
-		\item Calcular el orden de complejidad temporal de peor caso de una iteración del algoritmo de búsuqeda local
+		\item Calcular el orden de complejidad temporal de peor caso de una iteración del algoritmo de búsqueda local
 			  (para las vecindades planteadas). Y si es posible, dar una cota superior para la cantidad de iteraciones
 			  de la heurística. 
 			  
@@ -390,6 +458,11 @@ deshecho de algunas aristas).
 			  se deduce fácilmente del pseudocódigo presentado en el punto anterior (empleamos dos $for$, y adentro de uno
 			  de estos, llamamos a una función que calcula el costo de agregar el nodo a un conjunto, cuyo costo computacional
 			  es $O(n)$, pues cada nodo es adyacente como máximo a $n-1$ nodos).
+			  
+			  En el caso de la vecindad 2, el costo de cada iteración del algoritmo e búsqueda es $ O(n^3) $. Esto se deduce
+			  del pseudocódigo presentado más arriba: el algoritmos consta de una serie de ciclos $for$, dentro de los
+			  cuáles se llama a la función $calcualrCosto$, que tiene complejidad temporal $O(n)$. Observando el pseudocódigo,
+			  se llega a que la complejidad es $T(n) = O(n^3) + O(nk) + O(n^3) = O(n^3) $.
 			  
 	    \item Realizar una experimentación que permita observar la performance del algoritmo comparando los tiempos
 			  de ejecución y la calidad de las soluciones obtenidas, en función de las vecindades utilizadas y elegir,

@@ -120,6 +120,7 @@ int procesar_vecindad( int n, int m, int k, vector<nodoaux> &G, pair<vector<int>
 		int nodo_modificado_1 = -1;
 		int nodo_modificado_2 = -1;
 		double costo_original = v.second;
+		
 		/* Calculo el mejor swap que puedo hacer */
 		for(int j=1; j<=n && j!= i; j++) {
 			double costo_de_nodo_viejo_1, costo_de_nodo_viejo_2; 
@@ -147,34 +148,53 @@ int procesar_vecindad( int n, int m, int k, vector<nodoaux> &G, pair<vector<int>
 			}
 	    }
 	    
-	    /* Calculo el mejor conjunto vacío al que puedo mandar al nodo (si es que lo hay) - hay que verificar si se pudo
+	    /* Calculo el mejor conjunto vacío al que puedo mandar algún nodo (si es que lo hay) - hay que verificar si se pudo
 	     * mejorar con algún swappeo o no (ver nodo_modificado_1 o nodo_modificado_2) */
 	    int conjunto_vacio = -1;
 	    
 		for(int t=1; t<=k; t++) {
 			if(cant_por_conj[t] == 0) { conjunto_vacio = t; break; }
 		}
+		
 	    
-	    if(conjunto_vacio != -1 && nodo_modificado_1 != -1) {		// hay algún conjunto vacío y swapié dos nodos
-			swap(v.first[nodo_modificado_1], v.first[nodo_modificado_2]);
-			int meguardo = v.first[i];
-			v.first[i] = conjunto_vacio;
-			double costo_nodo_quitado = calcular_costo1(G,n,v,i);
-			if(costo_original - costo_nodo_quitado < v.second) {		// es más efectivo mandar el nodo al conjunto vacío
-				v.second -= costo_nodo_quitado;					// dejo las modificaciones y arreglo el costo
-				cant_por_conj[i]--;
-				cant_por_conj[conjunto_vacio]++;
-			} else {
-				v.first[i] = meguardo;
-				swap(v.first[nodo_modificado_1], v.first[nodo_modificado_2]);	// deshago los cambios y dejo el costo como estaba
+	    // Anulo el swappeo que había hecho. v.second tiene el costo que implicaría hacer el swappeo. costo_original tiene el costo sin swappeo
+	    
+	    int encontreMejorSeparado = 0;
+	    pair<double, int> res;
+	    res.first = v.second;				// valor inicial de res.first == costo haciendo el swap
+	    
+	    if(conjunto_vacio != -1) {
+			
+			if(nodo_modificado_1 != -1) { swap(v.first[nodo_modificado_1], v.first[nodo_modificado_2]); }
+			
+			for(int j=1; j<=n; j++) {									// me fijo qué nodo me conviene mandar al conjunto vacío
+				
+				double delta_costo_del_cambio = calcular_costo1(G,n,v,j);
+				double costo_del_cambio = costo_original - delta_costo_del_cambio;
+				
+				if(costo_del_cambio < res.first) {			// si el costo separando un nodo es menor que haciendo el swappeo
+															// y/o mejor que el ultimo nodo separado
+						res.first = costo_del_cambio;
+						res.second = j;
+						encontreMejorSeparado = 1;
+				}
 			}
-		} else if(conjunto_vacio != -1){
-			double costo_nodo_quitado = calcular_costo1(G,n,v,i);
-			v.first[i] = conjunto_vacio;
-			v.second -= costo_nodo_quitado;
-			cant_por_conj[i]--;
-			cant_por_conj[conjunto_vacio]++;
+			
+			if(encontreMejorSeparado == 0 && nodo_modificado_1 != -1) {
+				swap(v.first[nodo_modificado_1], v.first[nodo_modificado_2]);	// si no encontre un nodo que convenga mandarlo al conjunto vacío antes
+																			    // que hacer el swap Y habíamos hecho un swap
+				cout << "swapeo " << nodo_modificado_1 << " y " << nodo_modificado_2 << endl;
+			} else {															// si sí encontré un nodo que convenga mandarlo al conj vacío..
+				v.second = res.first;
+				v.first[res.second] = conjunto_vacio;
+				cant_por_conj[conjunto_vacio]++;
+				cout << "guardo " << v.second << endl;
+			}
 		}
+		
+		//~ if(nodo_modificado_1 != -1) {
+			//~ cout << "swapeo " << nodo_modificado_1 << " y " << nodo_modificado_2 << endl;
+		//~ }
 	 }
 	
   }
@@ -223,6 +243,7 @@ vector<int> solucion_inicial_aleatoria(int n, int k, vector<nodoaux> &G2, int ve
   vector<int> conjuntos;
   for(int i=0; i<=n; i++) {
 	  int temp = rand() % k + 1;
+	  
       conjuntos.push_back(temp);
   }
   return conjuntos;
