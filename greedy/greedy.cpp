@@ -26,7 +26,7 @@ bool cmp(nodoaux a, nodoaux b);
 int main() {
 	
   /* para testear */
-  freopen("input3.in", "r", stdin);
+  freopen("input1.in", "r", stdin);
   
   /* leo la entrada */	
   int n, m, k;
@@ -99,7 +99,7 @@ pair<double, double> calcular_hazard(int nodo, int k, vector< vector <int> > &co
   /* devuelvo la suma de los hazards que genera */
   for(int i=0; i<(int)nodo_auxiliar.adyacentes.size(); i++) {
 	  //~ cout << nodo_auxiliar.adyacentes[i].first << " ";
-      if(conjuntos[k][nodo_auxiliar.adyacentes[i].first] == 1) {
+      if(conjuntos[k][nodo_auxiliar.adyacentes[i].first-1] == 1) {
 	      hazard += nodo_auxiliar.adyacentes[i].second;
 	  }
   }
@@ -108,14 +108,13 @@ pair<double, double> calcular_hazard(int nodo, int k, vector< vector <int> > &co
   return make_pair(hazard,hazard);
 }
 
-int seleccionar_conjunto(int nodo, int k, vector< vector<int> > &conjuntos, double &peso_total,
+vector< vector<int> > actualizar_conjuntos(int nodo, int k, vector< vector<int> > &conjuntos, double &peso_total,
 						 vector<int> &tam_conjuntos, int n, vector<nodoaux> &G2) 
 {
   int indice_conj = -1;
   double valor_min = INF, peso_total_aux;
   pair<double, double> temp;
   
-  /* Ordeno segun aristas incidentes en cada nodo (o no? lo decido acá)*/
   
   /* me fijo a qué conjunto 'k' me conviene agregar el nodo 'nodo' para minimizar w_k */
   for(int j=0; j<k; j++) {
@@ -130,7 +129,7 @@ int seleccionar_conjunto(int nodo, int k, vector< vector<int> > &conjuntos, doub
   
   /* actualizo conjuntos, tam_conjuntos y peso_total */
   peso_total = peso_total + peso_total_aux;
-  conjuntos[indice_conj][nodo] = 1;
+  conjuntos[indice_conj][nodo-1] = 1;
   
   //~ cout << "Agrego " << nodo << " a " << indice_conj << endl;
   
@@ -141,13 +140,14 @@ int seleccionar_conjunto(int nodo, int k, vector< vector<int> > &conjuntos, doub
 	  //~ }  
 	  //~ cout << endl;
   //~ }
+  //~ cout << endl;
   
   tam_conjuntos[indice_conj]++;
  
   /* chequeo errores */
   assert(indice_conj != -1);
   
-  return indice_conj;
+  return conjuntos;
 }
 
 vector<int> greedy(int n, int m, int k, vector< pair< pair<int, int>, double> > &G)
@@ -159,16 +159,24 @@ vector<int> greedy(int n, int m, int k, vector< pair< pair<int, int>, double> > 
   double peso_total = 0;
 	
   /* agrego nodo i al cjto. k tal que minimizamos w_k */
-  int prox_conj = 0;
+  vector< vector<int> > conj_nuevo;
   
   /* genero grafo y ordeno segun aristas */  
   vector<nodoaux> G2 = generar_grafo_nodos(G, n);
   sort(G2.begin() + 1, G2.end(), cmp);
   
   for(int i=1; i<=n; i++) {
-	prox_conj = seleccionar_conjunto(G2[i].valor, k, conjuntos, peso_total, tam_conjuntos, n, G2);
-	res[i] = prox_conj+1;
+	conj_nuevo = actualizar_conjuntos(G2[i].valor, k, conjuntos, peso_total, tam_conjuntos, n, G2);
   }
+  
+  for(int i=0; i<(int)conjuntos.size(); i++) {
+	  for(int j=0; j<(int)conjuntos[0].size(); j++) {
+		  if(conjuntos[i][j] == 1) {
+			  res[j+1] = i+1;
+		  }  
+	  }  
+  }
+  
   cout << "Peso total: " << peso_total << endl;
   return res;	
 }
@@ -177,8 +185,9 @@ bool cmp(nodoaux a, nodoaux b)
 {  /* Ordeno de menor a mayor */
   double temp1 = a.max_arista_incidente;
   double temp2 = b.max_arista_incidente;
+  
   if(temp1 == temp2) {
-	  return (a.suma_total_aristas < b.suma_total_aristas);
+	  return (a.suma_total_aristas >= b.suma_total_aristas);
   }
-  return (temp1 < temp2);
+  return (temp1 > temp2);
 }

@@ -11,21 +11,25 @@
 
 %% =====================================================================
 
+\newpage
+
+\section{Problema 1}
 Dado un grafo simple $G = (V,E)$ y un entero $k$, se define una $k$-partición de $G$ como
 una partición de $V$ en $k$ conjuntos de vértices $V_{1} \dots V_{k}$. Y, dada una función
 de peso definida sobre las aristas de $G$, el peso de una $k$-partición es la suma de los pesos
 de las aristas intrapartición. Todos los pesos son positivos. Entonces, es importante notar que
 siempre que busquemos una $k$-PMP, y si $k < n$, no vamos a tener ninguna partición vacía. Puesto 
 que si tuviéramos alguna partición $V_{i}$ vacía, podríamos dividir a alguna otra partición no
-vacía $V_{j}$ en dos: $V_{j'}$ y $V_{i}$, quedando una $k$-PMP de menor peso (porque los pesos de
+vacía $V_{j}$ en dos: $V_{j'}$ y $V_{i}$, quedando una $k$-PMP de peso menor o igual (porque los pesos de
 todas las aristas son positivos y al dividir en dos el conjunto $V_{j}$ puede ser que nos hayamos
 deshecho de algunas aristas).
 
-\begin{enumerate}
-    \item Se pide desarrollar los siguientes puntos:
-    \begin{enumerate}
-		\item Relacionar el problema de k-PMP con el problema 3 del TP 1: 
-			  \par El problema 3 del TP 1 consistía en, dada una matriz de peligrosidad, que 
+Desarrollar los siguientes puntos:
+		
+		\begin{enumerate}
+			 \item Relacionar el problema de k-PMP con el problema 3 del TP 1
+			 
+			  El problema 3 del TP 1 consistía en, dada una matriz de peligrosidad, que 
 			  nos decía cuál era
 			  el peligro de juntar cada par de productos en un mismo camión,  determinar alguna
 			  posible asignación de $n$ productos en $k$ camiones de manera tal que en ninguno
@@ -33,115 +37,139 @@ deshecho de algunas aristas).
 			  Podríamos pensar a cada producto como un nodo de un grafo simple $G = (V,E)$, donde 
 			  $|V| = n$ y cada par de nodos $u,v$ están conectados por una arista $e = (u,v)$ de
 			  peso igual a la peligrosidad que generan los productos $u$ y $v$ al estar en un
-			  mismo camión. Viendo al problema de esta manera, podríamos concluir que:
+			  mismo camión. Ahora, llamaremos al problema del TP1 "problema 1" y al problema de hallar
+			  una k-PMP, "problema 2" y veremos si en distintos casos es posible utilizar cada uno 
+			  de estos dos problemas para resolver el otro.
 			  \begin{enumerate}
-			      \item si pudiéramos encontrar una \textbf{asignación de los $n$ productos a $k$ 
-			      camiones} (con la peligrosidad total de cada camión menor o igual que $M$) tal
-			      que la suma total de peligrosidad generada por todos los camiones sea $S$, 
-			      entonces podemos estar seguros de que la $k$-PMP del grafo $G$ va a ser 
-			      \textbf{por lo menos} tan buena como la solución encontrada para el problema
-			      de asignar los $n$ productos en $k$ camiones (podemos tomar la partición tal
-			      que el $nodo_{i} \in V_{j}$ sii $producto_{i} \in camion_{j}$).
-			      Sin embargo, podría haber alguna $k$-PMP en la
-			      cual se sobrepase el umbral $M$ para algún $V_{i} \in \{V_{1} \dots V_{k}\}$
-			      pero en la que $ \sum\limits_{i=1}^k peligrosidad(V_{i}) < S$. Setear
-			      $M = \infty$, no nos serviría, pues el algoritmo del problema 3 del TP 1 
-			      devolvería una solución que sólo utiliza un único camión, y no $k$ camiones,
-			      que es lo que necesitaríamos.
+			      \item supongamos que tenemos una solución para el problema 1. En dicha solución, se
+			      cuenta con los camiones $c_{1} \dots c_{k}$, tales que $(\forall i=1..k) 
+			      peligrosidad(c_{i}) \leq M$, y que contienen a los productos $p_{1} \dots p_{n}$. 
+			      Ahora, podemos definir un grafo $G'$ tal que cada producto $p_{i}$ se corresponda
+			      con un nodo $n_{i}$ y que si entre los productos $p_{i}$ y $p_{j}$ se genera un hazard $x$, en 
+			      el grafo $G'$, los nodos $n_{i}$ y $n_{j}$ estén unidos por una arista de peso $x$. A partir de 
+			      la solución al problema 1, construimos una solución al problema 2 sobre el grafo $G'$ (que llamaremos
+			      \texttt{solución hermana} a la solución del problema 1) de la 
+			      siguiente manera: para cada nodo $n_{i} \in G'$, si $p_{i}$ fue enviado al camión $c_{j}$, mandamos
+			      al nodo $n_{i}$ al conjunto $j$. Así, obtenemos una solución para el problema 2 sobre el grafo
+			      $G'$ de costo total $S = \sum\limits_{i=1}^k peligrosidad(c_{i})$. Entonces, podemos asegurar que
+			      la solución óptima para el problema de k-PMP sobre $G'$ es, como máximo, $S$. Esta solución
+			      podría no ser óptima porque el problema 1 impone una restricción en el hazard que puede 
+			      haber en cada camión, pero el problema 2 no impone ninguna restricción en el hazard que puede haber
+			      en cada conjunto. Y, en nuestra transformación de una solución del problema 1 en otra solución para
+			      el problema 2, hacemos que cada camión corresponda a un conjunto. Con lo cual podríamos no estar
+			      considerando algunas soluciones que sí habría que considerar en el problema 2.
 			      
-			      \item si no pudiéramos encontrar ninguna asignación de $n$ productos en $k$ 
-			      camiones con la peligrosidad de cada camión menor que $M$, entonces no podemos
-			      asegurar nada sobre la existencia de una $k$-PMP de mínimo peso, pues en la
-			      $k$-PMP no tenemos ninguna restricción sobre el peso máximo generado por cada
-			      elemento de la partición. A menos que $M = \infty$, en cuyo caso podríamos
-			      asegurar que el problema de las $k$-PMP tampoco tendría solución. Entonces, podemos
-			      afirmar que el problema de las $k$-PMP es \textbf{más fácil} que el de los camiones:
-			      si asignamos a $M$ un valor lo suficientemente grande, vamos a poder afirmar que la
-			      solución al problema de los camiones es la misma que la del problema de las $k$-PMP.
+			      \item por otro lado, supongamos que, contando sólo con los camiones $c_{1} \dots c_{k}$, sabemos
+			      que el problema 1 no tiene solución. Entonces, si construimos el mismo grafo $G'$ que construimos
+			      en el item anterior, \textbf{no} podemos decir nada sobre la existencia o no de una solución
+			      al problema 2 sobre el grafo $G'$, porque el problema 1 impone una restricción en el hazard que
+			      puede haber en cada camión, pero en el problema 2 puede haber cualquier cantidad de hazard en cada
+			      conjunto. Entonces, al igual que en el item anterior, debido a la forma en que transformamos soluciones
+			      al problema 1 en soluciones al problema 2, podrían existir soluciones para el problema 2
+			      en el grafo $G'$, que no tengan \texttt{solución hermana} en el problema 1. Esto, obviamente, no sucede
+			      en el caso en que $M = \infty$, puesto que en ese caso, no hay ninguna restricción en el problema 1
+			      para el hazard que puede haber en cada camón. 
 			      
-			      \item si \textbf{sí pudiéramos} encontrar una $k$-PMP de peso total $X \leq kM$
-			      tal que, además, $(\forall i=1 \dots k) peso(V_{i}) \leq M$ entonces podríamos
-			      utilizar esa misma partición ($nodo_{i} \in V_{j}$ sii $producto_{i} \in 
-			      camion_{j}$) como solución al problema de los camiones. Por el contrario,
-			      si existiera $V_{j} \in \{V_{1} \dots V_{k}\}$ tal que $peso(V_{j}) > M $ 
-			      entonces no podríamos asegurar nada sobre dicho problema, y deberíamos resolver
-			      el problema usando algún otro método.
-			      
-			      \item si \textbf{no pudiéramos} encontrar una $k$-PMP, de peso
-			      total $X \leq kM$, entonces \textbf{seguro}  que en el problema de los camiones
-			      no nos alcanzarían $k$ camiones para meter los $n$ productos. Esto es así porque
-			      el no existir $k$-PMP de peso menor que $kM$, quiere decir que no hay forma de 
-			      distribuir los $n$ productos en $k$ camiones sin sobrepasarme en al menos uno
-			      de los camiones del límite $M$ (si la hubiera, hubiéramos podido hallar alguna
-			      $k$-PMP tal que en ninguno de los camiones se sobrepase el límite $M$ y nos 
-			      serviría como solución para el problema de los camiones). Luego, en principio no 
-			      podemos asegurar que el problema de los camiones sea \textit{más fácil} que el de
-			      las $k$-PMP.
+			      \item supongamos que tenemos una solución para el problema 2, sobre el grafo $G'$. En dicha 
+			      solución, se cuenta con
+			      los conjuntos $1, 2, \dots k$ y los nodos $n_{1} \dots n_{n}$. A partir del grafo $G'$, podemos
+			      construir una instancia para el problema 1 de la siguiente forma: el nodo $n_{i}$, corresponderá
+			      al producto $p_{i}$. Para cada par de nodos $n_{i}$ y $n_{j}$ unidos por una arista de peso $x$,
+			      vamos a asignar una hazard de $x$ unidades para el par de productos $p_{i}$ y $p_{j}$. Además,
+			      dada una solución para el problema 2, construimos una \texttt{solución hermana} para el problema 1
+			      de la siguiente manera: si el nodo $n_{i}$ fue enviado al conjunto $j$, entonces mando al producto
+			      $p_{i}$ al camión $c_{j}$. \\
+			      Supongamos además que para cada conjunto $i$, $peso(i) \leq M$ para algún número $M$. Entonces, 
+			      con nuestra transformación podemos transformar nuestra solución óptima para el problema 2 en una solución
+			      óptima para el problema 1, pues cada conjunto se correspone con un camión, y en el problema 2 se busca
+			      utilizar la menor cantidad de conjuntos posibles (de la misma forma que en el problema 1 se busca
+			      utilizar la menor cantidad de camiones posibles). Sin embargo, si la solución utilizara algún
+			      conjunto $j$ con $peso(j) > M$, entonces
+			      nuestra transformación no generaría una solución válida para el problema 1.
+			    
+			   
 			      
 			  \end{enumerate}
 		
-		\item Relacionar el problema de $k$-PMP con el problema de coloreo de los vértices
-		      de un grafo.
-		      Primero que nada, hay que decir que por más que tengamos un método para hallar
-		      un $k$-coloreo de un grafo, es muy probable que esto nos nos sirva para hallar una
-		      $k$-PMP de dicho grafo puesto que el $k$-coloreo no considera el valor de las 
-		      aristas de $G$ sino que simplemente se preocupa por hacer un análisis de 
-		      adyacencias y no-adyacencias entre los nodos de dicho grafo.
-		      
-		      Si somos capaces de determinar una $k$-PMP para cualquier grafo, entonces también
-		      somos capaces de determinar la existencia de un $k$-coloreo para cualquier
-		      grafo y, si existe, podemos dar explícitamente uno de estos. \\
-		      Tomemos el grafo $G$ para el cual queremos hallar un 
-		      $k$-coloreo. Para todo par de nodos $f=(u,v)$ que sean adyacentes, modificar el peso
-		      de la arista que los une y ponerle un nuevo peso: peso($f$) = $\infty$.
-		      Para los pares de nodos $u,v$ que no sean adyacentes, agregar
-		      una arista $e=(u,v)$ que los una, y tal que $peso(e) = 1$. Luego, buscamos
-		      alguna $k$-PMP en el nuevo grafo $G'$. Si el peso total generado por dicha 
-		      partición es menor que infinito, entonces quiere decir que encontramos $k$ 
-		      conjuntos de vértices tales que en cada conjunto no hay ningún par de vértices 
-		      unidos por una arista de peso infinito (i.e. en cada conjunto, no puede haber
-		      dos nodos que fueran adyacentes en $G$, porque sino en $G'$ habría un eje
-		      intrapartición que uniría a estos nodos y haría que el peso total del conjunto
-		      se vaya a infinito).
-		      Entonces, suponiendo que cada $V_{i}$ es no vacío,  
-		      si a cada nodo $x \in V_{i}$ asignamos el color $i$, vamos a tener que
-		      para todo par de nodos $u,v \in V(G)$ $color(u)=color(v) \rightarrow $ $u$ y $v$ 
-		      no son adyacentes en $G$. Entonces, habremos encontrado un $k$-coloreo para el
-		      grafo $G$. Si sólo tuviéramos $t < k$ conjuntos no vacíos, sólo 
-		      podríamos asegurar que encontramos un $t$-coloreo para el grafo $G$. Pero seguro que
-		      esto no sucede, porque como ya explicamos en el punto $(a)$, $k$-PMP va a utilizar las
-		      $k$ particiones (si utilizara sólo $t$ particiones, partiendo uno de los conjuntos de 
-		      dicha partición sólo se podría mejorar la solución actual). \\
+			\item Relacionar el problema de $k$-PMP con el problema de coloreo de los vértices
+				  de un grafo.
+				  
+				  Primero que nada, hay que decir que por más que tengamos un método para hallar
+				  un $k$-coloreo de un grafo, es muy probable que esto nos nos sirva para hallar una
+				  $k$-PMP de dicho grafo puesto que el $k$-coloreo no considera el valor de las 
+				  aristas de $G$ sino que simplemente se preocupa por hacer un análisis de 
+				  adyacencias y no-adyacencias entre los nodos de dicho grafo.
+				  
+				  Si somos capaces de determinar una $k$-PMP para cualquier grafo, entonces también
+				  somos capaces de determinar la existencia de un $k$-coloreo para cualquier
+				  grafo y, si existe, podemos dar explícitamente uno de estos. \\
+				  Tomemos el grafo $G$ para el cual queremos hallar un 
+				  $k$-coloreo.
+				  A toda arista $f=(u,v)$ de $E(G)$ le ponemos un peso: peso($f$) = $\infty$.
+				  Para los pares de nodos $u,v$ que no sean adyacentes, agregar
+				  una arista $e=(u,v)$ que los una, de peso $peso(e) = 1$. Luego, buscamos
+				  alguna $k$-PMP en el nuevo grafo $G'$. Si el peso total generado por dicha 
+				  partición es menor que infinito, entonces quiere decir que encontramos $k$ 
+				  conjuntos de vértices tales que en cada conjunto no hay ningún par de vértices 
+				  unidos por una arista de peso infinito (i.e. en cada conjunto, no puede haber
+				  dos nodos que fueran adyacentes en $G$, porque sino en $G'$ habría un eje
+				  intrapartición que uniría a estos nodos y haría que el peso total del conjunto
+				  se vaya a infinito).
+				  Entonces, suponiendo que cada conjunto $V_{i}$ es no vacío,  
+				  si a cada nodo $x \in V_{i}$ asignamos el color $i$, vamos a tener que
+				  para todo par de nodos $u,v \in V(G)$ $color(u)=color(v) \rightarrow $ $u$ y $v$ 
+				  no son adyacentes en $G$. Entonces, habremos encontrado un $k$-coloreo para el
+				  grafo $G$. Si tuviéramos $t < k$ conjuntos no vacíos,
+				  podríamos asegurar que encontramos un $t$-coloreo para el grafo $G$. Pero seguro que
+				  esto no sucede, porque como ya explicamos en el punto $(a)$, $k$-PMP va a utilizar las
+				  $k$ particiones (si utilizara sólo $t$ particiones, partiendo uno de los conjuntos de 
+				  dicha partición sólo se podría mejorar la solución actual). \\
  
 		      
-		\item Describir situaciones de la vida real que puedan modelarse utilizando k-PMP.
-		Algunas situaciones de la vida cotidiana divertidas que pueden ser modeladas utilizando
-		$k$-PMP podrían ser:
-			  \begin{enumerate}
-				\item Quiero distribuir a $n$ alumnos en $k$ aulas de forma que estos se intenten
-				copiar lo menos posible en el examen: La probabilidad de que un alumno se intente
-				copiar en el examen es mayor cuanto más cómodo se sienta el alumno en el aula. 
-				Y un alumno
-				se siente más cómodo en el aula cuanto mayor sea la sumatoria del índice de 
-				confianza que tiene con el resto de los alumnos de su aula.
-				
-				\item Un alumno busca distribuir $n$ materias en $k$ cuatrimestres minimizando
-				sus horas extra de estudio, si cada par de materias que son cursadas en el mismo
-				cuatrimestre hacen que el alumno tenga que estudiar cierta cantidad de horas extra
-				para poder aprobarlas.
-				
-				\item Se cuenta con $n$ prendas de ropa y con una lavadora. Dependiendo de qué prendas
-				de ropa se metan al mismo tiempo, el lavarropas tarda más o menos tiempo en lavarlas. Se busca 
-				seleccionar $k$ conjuntos de prendas tales que se minimize el tiempo total que la 
-				lavadora esta encendida.
-			  \end{enumerate}
-    \end{enumerate}
+			\item Describir situaciones de la vida real que puedan modelarse utilizando k-PMP.
+			Algunas situaciones de la vida cotidiana divertidas que pueden ser modeladas utilizando
+			$k$-PMP podrían ser:
+				  \begin{enumerate}
+					\item Quiero distribuir a $n$ alumnos en $k$ aulas de forma que estos se intenten
+					copiar lo menos posible en el examen: La probabilidad de que un alumno se intente
+					copiar en el examen es mayor cuanto más cómodo se sienta el alumno en el aula. 
+					Y un alumno
+					se siente más cómodo en el aula cuanto mayor sea la sumatoria del índice de 
+					confianza que tiene con el resto de los alumnos de su aula.
+					
+					\item Un alumno busca distribuir $n$ materias en $k$ cuatrimestres minimizando
+					sus horas extra de estudio, si cada par de materias que son cursadas en el mismo
+					cuatrimestre hacen que el alumno tenga que estudiar cierta cantidad de horas extra
+					para poder aprobarlas.
+					
+					\item Se cuenta con $n$ prendas de ropa y con una lavadora. Dependiendo de qué prendas
+					de ropa se metan al mismo tiempo, el lavarropas tarda más o menos tiempo en lavarlas. Se busca 
+					seleccionar $k$ conjuntos de prendas tales que se minimize el tiempo total que la 
+					lavadora esta encendida.
+				  \end{enumerate}
+			\end{enumerate}
+	
+%% =====================================================================
+
+
+\newpage
+\section{Problema 2}
+	Diseñar e implementar un \textbf{algoritmo exacto} para k-PMP y desarrollar los siguientes puntos:
+	\begin{enumerate}
+	
+		\item 1
+		\item 2
+		\item 3
+	\end{enumerate}	
+			
+			
+%% =====================================================================
+\newpage
+\section{Problema 3}
     
-    \newpage
-    \item Diseñar una \textbf{heurística constructiva golosa} para $k$-PMP y desarrollar los siguientes
-    puntos:
+	Diseñar una \textbf{heurística constructiva golosa} para $k$-PMP y desarrollar los siguientes puntos:
+    
     \begin{enumerate}
-    
 		\item Explicar detalladamente el algoritmo implementado:
 		La heurística que pensamos se basa en algunas observaciones claves: 
 		\begin{enumerate}
@@ -153,9 +181,24 @@ deshecho de algunas aristas).
 			si llamamos $w_{i}$ al peso total del conjunto $S_{i}$, 
 			agregaríamos el nodo $t$ al conjunto $S_{i}$ tal que se minimize $w_{i}$.
 						
-			\item otra idea que se podría sumar a esta heurísitica sería recorrer los nodos que vamos agregando a
-			cada conjunto no de forma aleatoria sino recorriéndolos en algún orden. Por ejemplo, ordenando los nodos
-			según el peso de la máxima arista que incide en él.
+			\item otra idea que sumamos a esta heurísitica es recorrer los nodos que vamos agregando a
+			cada conjunto en un orden. Antes de recorrer la lista de nodos para ir asignándolos a conjuntos,
+			ordenamos la lista de nodos según: 
+			\begin{enumerate}
+				\item según el peso de la máxima arista incidente en cada nodo y, en caso de empate
+				\item según la suma total de las aristas incidentes en cada nodo (de menor a mayor).
+			\end{enumerate}
+			La razón por la cuál elegimos el primer criterio, es para asegurarnos de agregar al principio los nodos
+			que tienen aristas incidentes de mucho peso a conjuntos distintos.
+			Es esperable que este tipo de ordenamiento dé buenos resultados en grafos con pocas aristas de mucho
+			peso y muchas aristas de bajo peso en comparación, ya que el algoritmo va a enviar los nodos 
+			que son adyacentes a esas aristas de mucho peso a conjuntos distintos, logrando así que las aristas de
+			mucho peso no sumen costo a la solución final. \\
+			La razón por la cuál elegimos el segundo criterio (para desempatar), es que, si asignamos conjunto
+			primero a los nodos que generan mayor hazard (con mayor suma total de sus aristas incidentes), intentamos
+			agregar en conjuntos distintos a los nodos que potencialmente generan mayor hazard. Así, cada vez que 
+			tengamos que agregar un nuevo nodo a algún conjunto, esperamos tener mayor cantidad de conjuntos en donde 
+			meter dicho nodo sin generar demasiado hazard extra. \\
 			
 		\end{enumerate}
 		
@@ -225,8 +268,8 @@ deshecho de algunas aristas).
 		Dentro de estos ciclos lo que hacemos es determinar a qué conjunto $m$ agregar el nodo $i$. Para esto,
 		lo que hacemos es recorrer para el nodo actual los $k$ conjuntos ($O(k)$) y en cada pasada calculamos 
 		cuál sería el costo que generaría agregar el nodo $i$ al conjunto $k$. Esto lo hacemos de forma lineal 
-		en $|V(G)|$, a partir de haber guardado el grafo $G$ en una estructura conveniente. Luego, 
-		$T(n) = O(kn)$. \\
+		en $|V(G)|$, a partir de haber guardado el grafo $G$ en una estructura conveniente (lista de adyacencia 
+		de nodos). Luego, $T(n) = O(kn)$. \\
 		Entonces, la complejidad de nuestro algoritmo en el peor caso es $ O(knT(n)) = O(k^2 n^2)$.
 		
 		\item Describir instancias de $k$-PMP para las cuales la heurística no proporciona una solución
@@ -239,54 +282,65 @@ deshecho de algunas aristas).
 			\begin{minipage}{.6\textwidth}
 			\centering
 			\includegraphics[width=.8\linewidth]{imagenes/ej3_11}
-			\caption{Ejemplo 1 - solución de la heurística}
+			\caption{Solución de la heurística}
 			\end{minipage}
 			\begin{minipage}{.6\textwidth}
 			\includegraphics[width=.8\linewidth]{imagenes/ej3_12}
-			\caption{Ejemplo 1 - solución óptima}
+			\caption{Solución óptima}
 			\end{minipage}
 		\end{figure}
 		
-		En el ejemplo 1, se busca una 2-PMP de un grafo $G$. Como las aristas internas tienen todas peso
-		infinito, la solución óptima es la de la Figura 0.0.3, con peso 0. Sin embargo, la solución de 
-		nuestra heurística devuelve la solución de la Figura 0.0.2, de peso infinito. El problema radica en 
-		que cada par de nodos que son adyacentes, al sólo enfocarnos en agregarlo al conjunto que agrega el mínimo
-		peso posible, terminamos agregando cada par de nodos del ciclo a conjuntos diferentes. El problema es que 
-		al hacer esto nos quedamos sin conjuntos libres, y cuando tengamos que agregar el último nodo a algún
-		conjunto, no va a importar cuál elijamos, en todos este va a agregar peso infinito. Este problema se
-		generaliza para las $k$-PMP, siempre que suceda que al momento de procesar un nodo con todas sus aristas de
-		peso infinito (o muy grande), todas estas aristas estén unidas a nodos que ya tienen asignados la totalidad
-		de los $k$ conjuntos. Entonces, nos quedamos sin conjuntos para meter al nuevo nodo, y a cualquier conjunto de
-		los ya creados que agreguemos este nodo, va a sumar un peso infinito (o muy grande).
+		En este primer ejemplo, se busca una 2-PMP del grafo $G_{0}$. Dicho grafo es un ciclo de nodos unidos por aristas 
+		de peso infinito y con algunas aristas internas, de peso 1. Como se puede observar en los esquemas,
+		la heurística proporciona una solución de peso infinito, mientras que la solución óptima tiene peso cero.
+		El problema con el que se encuentra la heurística radica en que se recorren los nodos en cierto orden, y
+		una vez que se coloca cada nodo en algún conjunto, este no puede ser cambiado a otro. En este 
+		ejemplo en particular, se recorren los nodos del grafo en el orden: N6, N4, N2, N3, N1, N5. Entonces,
+		cuando llegamos a agregar el nodo N3, ya se han agregado los nodos N6 y N2 al conjunto A, y el nodo
+		N4 al conjunto B. Entonces, a esta altura ya sea que  agreguemos el nodo N3 al conjunto A o al B, en 
+		cualquiera de los conjuntos agregaremos hazard infinito.
 		
 		\begin{figure}[H]
 		\begin{minipage}{.6\textwidth}
 		\centering
 		\includegraphics[width=.8\linewidth]{imagenes/ej3_21}
-		\caption{Ejemplo 2 - solución de la heurística}
+		\caption{Solución de la heurística}
 		\end{minipage}
 		\begin{minipage}{.6\textwidth}
 		\includegraphics[width=.8\linewidth]{imagenes/ej3_22}
-		\caption{Ejemplo 2 - solución óptima}
+		\caption{Solución óptima}
 		\end{minipage}
 		\end{figure}
 		
-		En el ejemplo 2, se busca la 2-PMP del grafo $G$. Dicho grafo es bipartito, a excepción del nodo extra que 
-		agregamos, que está unido a un nodo en cada uno de los conjuntos. Si llamamos $V_{1}$ y $V_{2}$ a los
-		conjuntos del subgrafo bipartito, asumimos que cada arista que va de un conjunto a otro pesa 1. Entonces, 
-		la solución óptima sería la de la figura 0.0.6. Sin embargo, la solución de nuestra huerística podría ser la 
-		dada por la figura 0.0.5. En un caso, el costo total es infinito y en el otro es $M$, con $M < \infty$. 
-		Esto sucede porque al recorrer los nodos según los que tienen la mínima arista, primero se llenan los dos 
-		conjuntos con nodos de $V_{1}$ y $V_{2}$ y por último se agrega el nodo extra. En este caso, si la heurística
-		hubiera sido ordenar los nodos según la máxima arista, la solución hubiera sido la correcta. \\
+		En el ejemplo 2, se busca una 2-PMP del grafo $G_{1}$.  Dicho grafo consta de un subgrafo completo bipartito,
+		conformado por los conjuntos de nodos A y B, y de un nodo $u$, unido mediante una arista con todos los nodos
+		del conjunto A. Cada arista que une nodos de A con B tiene peso INF, mientras que cada arista que une al nodo
+		$u$ con nodos del conjunto A, tiene peso 1. La solución óptima a este problema esta presentada en la segunda
+		figura, y es de peso $M$, con $M < \infty$, mientras que la solución que brinda nuestra heurística es de peso
+		infinito, y una posible representación de la misma esta esquematizada en la primera figura. La heurística falla
+		porque vamos agregando los nodos a cada conjunto en un orden que nos conduce a una solución no óptima. En este caso,
+		los nodos del conjunto A son los que primero van a ser agregados a conjuntos. Entonces, como nuestro algoritmo
+		es goloso y cada vez que agrega un nodo a un conjunto, lo agrega al conjunto que minimiza el hazard nuevo que se
+		genera, seguro que van a haber al menos dos nodos $x,y \in A$ tales que $x$ sea agregado al conjunto 1 e $y$ al
+		conjunto 2. Esto hace que, más adelante, para cada nodo del conjunto B, como está unido tanto a $x$ como a $y$, 
+		no importa si lo agregamos al conjunto 1 o al conjunto 2, en ambos casos el hazard extra que se genera
+	    es siempre INF. Esto hace que, al final, nuestra solución siempre tenga peso infinito. \\
 		
 		
 		\item Realizar una experimentación que permita observar la performance del algoritmo en términos
 		de tiempo de ejecución en función del tamaño de la entrada.
+		
     \end{enumerate}
     
-    \item Diseñar una heurística de búsqueda local para $k$-PMP y desarrollar los siguientes puntos:
+%% =====================================================================
+
+
+\newpage
+\section{Problema 4} 
+	
+	Diseñar una heurística de búsqueda local para $k$-PMP y desarrollar los siguientes puntos:
     \begin{enumerate}
+    
 		\item Explicar detalladamente el algoritmo implementado. Plantear al menos dos vecindades disintas
 		para la búsqueda. \\
 		En el algoritmo que implementamos seguimos los siguientes pasos:
@@ -297,6 +351,7 @@ deshecho de algunas aristas).
 			\item repetimos los dos pasos anteriores hasta que no haya una solución vecina mejor ó, hasta
 			      haberlo repetido una cantidad límite de $x$ veces.
 		\end{enumerate}
+		
 		La razón por la cual repetimos el proceso para varias soluciones iniciales es porque dependiendo
 		de la solución inicial que consideremos, hallaremos un mínimo local distinto. Con lo cuál, para
 		que la probabilidad de hallar el mínimo global sea lo más alta posible, hay que considerar 
@@ -306,112 +361,117 @@ deshecho de algunas aristas).
 		\begin{enumerate}
 			\item para cada nodo, chequear si cambiándolo a algún otro conjunto, se podría reducir el costo
 			      total de la solución. Un pseudocódigo para el algoritmo implementado sería:
-			      
-			      \begin{algorithm}
-					\SetKwInOut{Input}{input}
-					\SetKwInOut{Output}{output}
-					  \Input{grafo $G$, solución parcial $v$}
-					  \Output{modifica $v$ y genera una nueva solución parcial, $v'$}
-					  
-					  \For{cada nodo $i = 1 \dots n$}{
-						\For{$j = $ cada conjunto $1 \dots k$}{
-							costoDelNodoViejo = calcularCosto($G$, $v$, $i$) \\
-							$v' = $ cambiar nodo $i$ al conjunto $j$ \\
-							costoDelNodoViejo = calcularCosto($G$, $v'$, $i$) \\
-							\If{costoDelNodoNuevo $<$ costoDelNodoViejo}{
-								$v = v'$ \\
-								actualizo costo de $v$ (en $O(1)$) \\
-								res = 1 \\
-							}
-							\If{costoDelNodoNuevo $\geq$ costoDelNodoViejo}{
-								res = 0 \\
-							}
-						}
-					  }
-					  return res \\
-					\caption{Algoritmo de búsqueda local con vecindad 1}
-					\end{algorithm}
-			     \textbf{Nota: } La función calcularCosto(G,v,i) recorre los nodos adyacentes al nodo $i$, y acumula la suma
-					            de las aristas que unen a $i$ con algún otro nodo adyacente a $i$ en la solución actual
-			     
 			\item para cada nodo, chequear si swappeandolo de conjunto con otro nodo ó mandándolo a un conjunto que esté
 			      vacío se reduce el costo.
-				  
-				  \begin{algorithm}
-					\SetKwInOut{Input}{input}
-					\SetKwInOut{Output}{output}
-					  \Input{grafo $G$, solución parcial $v$}
-					  \Output{modifica $v$ y genera una nueva solución parcial, $v'$}
-					  
-					  \For{ cada nodo $i = 1 \dots n$ }{
-						
-						nodoModificado1 = -1 \\
-						nodoModificado2 = -1 \\
-						costoOriginal = v.second \\
-						
-						\For{ cada nodo $j = 1 \dots n$ }{
-						
-							costoNodoViejo1 = calcularCosto(G,n,v,i) \\
-							costoNodoViejo2 = calcularCosto(G,n,v,j) \\
-							
-							swap(v.first[i], v.first[j])	// swapeo los nodos de conjunto \\
-							
-							costoNodoNuevo1 = calcularCosto(G,n,v,i) \\
-							costoNodoNuevo2 = calcularCosto(G,n,v,j) \\
-							
-							costoViejo = costoNodoViejo1 + costoNodoViejo2 \\
-							costoNuevo = costoNodoNuevo1 + costoNodoNuevo2 \\
-							
-							\eIf{costoNuevo $<$ costoViejo}{
-								res = 1 \\
-								v.second = v.second - costoViejo + costoNuevo \\
-								nodoModificado1 = i \\
-								nodoModificado2 = j 		// guardo los nodos con los que hice el swap \\
-							}{
-								swap(v.first[i], v.first[j])	// reestablezco el swapeo que habíamos hecho \\
-							}
-							
-							
-						}
-						
-						conjuntoVacio = indice de algun conjunto vacio 	// O(k) \\
-						\If{ conjuntoVacio es un indice valido }{
-							encontreMejorSeparado = 0 \\
-							meGuardoCosto = v.second \\
-							meGuardoNodoCambiado = -1 \\
-							
-							\If{ hicimos algun swap }{
-								swap(v.first[nodoModificado1], v.first[nodoModificado2]) // deshacemos el swap para ver si convenia cambiar
-																							algun nodo al conjunto vacio\\
-							}
-							
-							\For{ cada nodo $j = 1 \dots n$ }{
-								deltaCostoDelCambio = calcularCosto(G,n,v,j) \\
-								costoDelCambio = costoOriginal - deltaCostoDelCambio \\
-								\If{costoDelCambio $<$ meGuardoCosto}{	// si encontre un nodo mejor que el ultimo encontrado \\
-									meGuardoCosto = costoDelCambio \\
-									meGuardoNodoCambiado = j \\
-									encontreMejorSeparado = 1 // quiere decir que es mejor cambiar un nodo a un conjunto vacio que 
-																 hacer el swap que habiamos hecho\\
-								}
-							}
-							
-							// Ahora me fijo si debo reestablecer el swapeo que habia hecho o no \\
-							\eIf{encontreMejorSeparado == 1 y habiamos hecho algun swap}{
-								swap(v.first[nodoModificado1], v.first[nodoModificado2]) \\
-							}{
-								v.second = meGuardoCosto \\
-								v.first[meGuardoNodoCambiado] = conjuntoVacio \\
-								Actualizo la cantidad de nodos que tengo por conjunto 	// O(1) \\
-								
-							}				
-						}
-					}
-					  
-					\caption{Algoritmo de búsqueda local con vecindad 2}
-					\end{algorithm}
-				  
 		\end{enumerate}
+		
+		A continuación, presentamos el pseudocódigo para cada una de las vecindades.
+		
+		  \begin{algorithm}
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+			  \Input{grafo $G$, solución parcial $v$}
+			  \Output{modifica $v$ y genera una nueva solución parcial, $v'$}
+			  
+			  \For{cada nodo $i = 1 \dots n$}{
+				\For{$j = $ cada conjunto $1 \dots k$}{
+					costoDelNodoViejo = calcularCosto($G$, $v$, $i$) \\
+					$v' = $ cambiar nodo $i$ al conjunto $j$ \\
+					costoDelNodoViejo = calcularCosto($G$, $v'$, $i$) \\
+					\If{costoDelNodoNuevo $<$ costoDelNodoViejo}{
+						$v = v'$ \\
+						actualizo costo de $v$ (en $O(1)$) \\
+						res = 1 \\
+					}
+					\If{costoDelNodoNuevo $\geq$ costoDelNodoViejo}{
+						res = 0 \\
+					}
+				}
+			  }
+			  return res \\
+			\caption{Algoritmo de búsqueda local con vecindad 1}
+			\end{algorithm}
+	  
+	  \textbf{Nota: } La función calcularCosto(G,v,i) recorre los nodos adyacentes al nodo $i$, y acumula la suma
+					  de las aristas que unen a $i$ con algún otro nodo adyacente a $i$ en la solución actual
+			     
+				 
+				 
+				  
+	  \begin{algorithm}
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+		  \Input{grafo $G$, solución parcial $v$}
+		  \Output{modifica $v$ y genera una nueva solución parcial, $v'$}
+		  
+		  \For{ cada nodo $i = 1 \dots n$ }{
+			
+			nodoModificado1 = -1 \\
+			nodoModificado2 = -1 \\
+			costoOriginal = v.second \\
+			
+			\For{ cada nodo $j = 1 \dots n$ }{
+			
+				costoNodoViejo1 = calcularCosto(G,n,v,i) \\
+				costoNodoViejo2 = calcularCosto(G,n,v,j) \\
+				
+				swap(v.first[i], v.first[j])	// swapeo los nodos de conjunto \\
+				
+				costoNodoNuevo1 = calcularCosto(G,n,v,i) \\
+				costoNodoNuevo2 = calcularCosto(G,n,v,j) \\
+				
+				costoViejo = costoNodoViejo1 + costoNodoViejo2 \\
+				costoNuevo = costoNodoNuevo1 + costoNodoNuevo2 \\
+				
+				\eIf{costoNuevo $<$ costoViejo}{
+					res = 1 \\
+					v.second = v.second - costoViejo + costoNuevo \\
+					nodoModificado1 = i \\
+					nodoModificado2 = j 		// guardo los nodos con los que hice el swap \\
+					break (!!!!!!!!!!!!!!!!!!!!!!!!!) \\
+				}{
+					swap(v.first[i], v.first[j])	// reestablezco el swapeo que habíamos hecho \\
+				}
+				
+				
+			}
+			
+			conjuntoVacio = indice de algun conjunto vacio 	// O(k) \\
+			\If{ conjuntoVacio es un indice valido }{
+				encontreMejorSeparado = 0 \\
+				meGuardoCosto = v.second \\
+				meGuardoNodoCambiado = -1 \\
+				
+				\If{ hicimos algun swap }{
+					swap(v.first[nodoModificado1], v.first[nodoModificado2]) // deshacemos el swap para ver si convenia cambiar
+																				algun nodo al conjunto vacio\\
+				}
+				
+				\For{ cada nodo $j = 1 \dots n$ }{
+					deltaCostoDelCambio = calcularCosto(G,n,v,j) \\
+					costoDelCambio = costoOriginal - deltaCostoDelCambio \\
+					\If{costoDelCambio $<$ meGuardoCosto}{	// si encontre un nodo mejor que el ultimo encontrado \\
+						meGuardoCosto = costoDelCambio \\
+						meGuardoNodoCambiado = j \\
+						encontreMejorSeparado = 1 // quiere decir que es mejor cambiar un nodo a un conjunto vacio que 
+													 hacer el swap que habiamos hecho\\
+					}
+				}
+				
+				// Ahora me fijo si debo reestablecer el swapeo que habia hecho o no \\
+				\eIf{encontreMejorSeparado == 1 y habiamos hecho algun swap}{
+					swap(v.first[nodoModificado1], v.first[nodoModificado2]) \\
+				}{
+					v.second = meGuardoCosto \\
+					v.first[meGuardoNodoCambiado] = conjuntoVacio \\
+					Actualizo la cantidad de nodos que tengo por conjunto 	// O(1) \\
+					
+				}				
+			}
+		}
+		  
+		\caption{Algoritmo de búsqueda local con vecindad 2}
+		\end{algorithm}
 		
 		En el caso de la primera  y segunda vecindad, una instancia posible y su solución serían (partiendo de la solución 
 		aleatoria inicial 3 3 3 3 1 2 3 3). \\
@@ -468,10 +528,37 @@ deshecho de algunas aristas).
 			  de ejecución y la calidad de las soluciones obtenidas, en función de las vecindades utilizadas y elegir,
 			  si es posible, la configuración que mejores resultados provea pra el grupo de instancias utilizado.
     \end{enumerate}
-\end{enumerate}
 
 
+%% =====================================================================
 
+
+\newpage
+\section{Problema 5}
+	Utilizando las heurísticas implementadas en los puntos anteriores, diseñar e implementar un algoritmo para k-PMP que
+	use la \textbf{metaheurística GRASP} y desarrollar los siguientes puntos:
+	
+	 \begin{enumerate}
+	 
+		\item Explicar detalladamente el algoritmo implementado. Plantear distintos criterios de parada y de selección de la 
+			  lista de candidatos (RCL) de la heurística golosa aleatorizada.
+			  
+		\item Realizar una experimentación que permita observar los tiempos de ejecución y la calidad de las soluciones
+			  obtenidas. Se debe experimentar variando los valores de los parámetros de la metaheurística (lista de candidatos,
+			  criterios de parada, etc.) y elegir, si es posible, la configuración que mejores resultados provea para el
+			  grupo de instancias utilizado.
+			  
+	 \end{enumerate}
+
+%% =====================================================================
+
+
+\newpage
+\section{Problema 6}
+	Una vez elegidos los mejores valores de configuración para cada heurística implementada (si fue posible), realizar
+	una \textbf{experimentación sobre un conjunto nuevo de instancias} para observar la performance de los métodos comparando
+	nuevamente la calidad de las soluciones obtenidas y los tiempos de ejecución en función del tamaño de entrada. Para
+	los casos que sea posible, comparar mediante gráficos adecuados y discutir al respecto de los mismos.
 
 
 %% =====================================================================

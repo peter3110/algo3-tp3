@@ -143,6 +143,7 @@ int procesar_vecindad( int n, int m, int k, vector<nodoaux> &G, pair<vector<int>
 				v.second = v.second - costo_viejo + costo_nuevo;
 				nodo_modificado_1 = i;
 				nodo_modificado_2 = j;
+				break;
 		    } else {
 				swap(v.first[i], v.first[j]);
 			}
@@ -246,6 +247,7 @@ vector<int> solucion_inicial_aleatoria(int n, int k, vector<nodoaux> &G2, int ve
 	  
       conjuntos.push_back(temp);
   }
+  
   return conjuntos;
 }
 
