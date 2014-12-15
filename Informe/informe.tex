@@ -20,7 +20,7 @@ de peso definida sobre las aristas de $G$, el peso de una $k$-partición es la s
 de las aristas intrapartición. Todos los pesos son positivos. Entonces, es importante notar que
 siempre que busquemos una $k$-PMP, y si $k < n$, no vamos a tener ninguna partición vacía. Puesto 
 que si tuviéramos alguna partición $V_{i}$ vacía, podríamos dividir a alguna otra partición no
-vacía $V_{j}$ en dos: $V_{j'}$ y $V_{i}$, quedando una $k$-PMP de peso menor o igual (porque los pesos de
+vacía $V_{j}$ en dos: $V_{j'}$ y $V_{j''}$, quedando una $k$-PMP de peso menor o igual (porque los pesos de
 todas las aristas son positivos y al dividir en dos el conjunto $V_{j}$ puede ser que nos hayamos
 deshecho de algunas aristas).
 
@@ -72,9 +72,9 @@ Desarrollar los siguientes puntos:
 			      
 			      \item supongamos que tenemos una solución para el problema 2, sobre el grafo $G'$. En dicha 
 			      solución, se cuenta con
-			      los conjuntos $1, 2, \dots k$ y los nodos $n_{1} \dots n_{n}$. A partir del grafo $G'$, podemos
-			      construir una instancia para el problema 1 de la siguiente forma: el nodo $n_{i}$, corresponderá
-			      al producto $p_{i}$. Para cada par de nodos $n_{i}$ y $n_{j}$ unidos por una arista de peso $x$,
+			      los conjuntos $1, 2, \dots k$ y los nodos $v_{1} \dots v_{n}$. A partir del grafo $G'$, podemos
+			      construir una instancia para el problema 1 de la siguiente forma: el nodo $v_{i}$, corresponderá
+			      al producto $p_{i}$. Para cada par de nodos $v_{i}$ y $v_{j}$ unidos por una arista de peso $x$,
 			      vamos a asignar una hazard de $x$ unidades para el par de productos $p_{i}$ y $p_{j}$. Además,
 			      dada una solución para el problema 2, construimos una \texttt{solución hermana} para el problema 1
 			      de la siguiente manera: si el nodo $n_{i}$ fue enviado al conjunto $j$, entonces mando al producto
@@ -204,12 +204,12 @@ Desarrollar los siguientes puntos:
 			
 		\end{enumerate}
 		
-		A continuación exponemos un pseudocódigo para el algoritmo que implementamos. \\
+		A continuación exponemos un pseudocódigo para el algoritmo goloso que implementamos. \\
 		\begin{algorithm}[H]
 		\SetKwInOut{Input}{input}
 		\SetKwInOut{Output}{output}
 		  \Input{n: cantidad de nodos, m: cantidad de aristas, k: cantidad de conjuntos, G: grafo}
-		  \Output{res: lista de enteros tal que res[i] contiene el índice del conjunto al cuál pertenece el nodo i}
+		  \Output{conjuntos: matriz de enteros tal que conjuntos[j][i] == 1 sii el conjunto j contiene al nodo i}
 		  vector$<int>$ conjuntos \\
 		  vector$<int>$ tam-conjuntos \\
 		  ordenar $G$ según el peso de la máxima arista incidente a cada nodo y en caso de empate según la máxima suma
@@ -221,7 +221,10 @@ Desarrollar los siguientes puntos:
 					CalcularHazard) \\
 					\If{$h < $ valorMin}{
 						- $valorMin$ = $h$ \\
-						- agregar nodo $i$ al conjunto $j$ (conjuntos[$j$] = $i$) \\
+						- si antes habíamos agregado al nodo $i$ a algún conjunto, sacarlo de dicho conjunto
+						  (conjuntos[$conjAnterior$][$i$] = 0). \\
+						- agregar nodo $i$ al conjunto $j$ (conjuntos[$j$][$i$] = 1) \\
+						- $conjAnterior = j$ \\
 					}
 				}
 		  }
@@ -229,9 +232,24 @@ Desarrollar los siguientes puntos:
 		\caption{Algoritmo 1}
 		\end{algorithm}
 		
-		Un ejemplo de entrada y salida para nuestro algoritmo podrían ser el grafo de la 
-		Figura 0.0.1. En el ejemplo, se busca una 3-PMP.
+		Para devolver la solución en el formato que pide el enunciado, además implementamos la función transformarSolución.
+		A continuación presentamos el pseudocódigo de dicha función.
+		\begin{algorithm}[H]
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+		  \Input{matriz conjuntos ($M$, de tamaño $k$ x $n$)} 
+		  \Output{res: vector de enteros, tal que res[i] == j sii el nodo i está en el conjunto j}
+		  \For{cada nodo i = 1 $\dots$ n}{
+			\For{cada conjunto j = 1 $\dots$ k}{
+				\If{conjuntos[j][i] == 1}{
+					res[i] = j \\
+				}
+			}
+		  }
+		\caption{función transformarSolución}
+		\end{algorithm}
 		
+		Luego, veamos qué hace este algoritmo con un ejemplo:	
 		\begin{figure}[H]
 		\includegraphics[scale=1]{imagenes/ej2.png}
 		\caption{Instancia 1}
@@ -281,7 +299,10 @@ Desarrollar los siguientes puntos:
 		Esto lo hacemos de forma lineal 
 		en $|V(G)|$, a partir de haber guardado el grafo $G$ en una estructura conveniente (lista de adyacencia 
 		de nodos). Luego, $T(n) = O(n)$. \\
-		Entonces, la complejidad de nuestro algoritmo en el peor caso es $ O(knT(n)) = O(k n^2)$.
+		Entonces, la complejidad de nuestro algoritmo en el peor caso es $ O(knT(n)) = O(k n^2)$, ya que la función 
+		$transformarSolucion$ consta de dos $for$ que van entre 1 y $n$, con lo cual tiene complejidad 
+		$O(n^2) \subset O(k n^2) $ y no suma complejidad temporal al algoritmo.
+		
 		
 		\begin{algorithm}[H]
 		\SetKwInOut{Input}{input}
@@ -369,7 +390,7 @@ Desarrollar los siguientes puntos:
 \newpage
 \section{Problema 4} 
 	
-	Diseñar una heurística de búsqueda local para $k$-PMP y desarrollar los siguientes puntos:
+	Diseñar una \textbf{heurística de búsqueda local} para $k$-PMP y desarrollar los siguientes puntos:
     \begin{enumerate}
     
 		\item Explicar detalladamente el algoritmo implementado. Plantear al menos dos vecindades disintas
@@ -530,6 +551,12 @@ Desarrollar los siguientes puntos:
 			  Entonces, como todo lo recién mencionado está metido en un $for$ que recorre todos los nodos ($O(n)$), 
 			  se llega a que la complejidad es $T(n) = O(n^3) + O(nk) + O(n^3) = O(n^3) $.
 			  
+			  Además, podemos asegurar que la cantidad de iteraciones que se efectúan son como máximo $S$ iteraciones, 
+			  donde $S$ es el peso de la solución aleatoria con la que iniciamos el algoritmo. Esto es así porque en cada
+			  iteración o se baja en al menos una unidad el costo de la solución y se sigue iterando (hasta llegar, como 
+			  máximo a costo cero, en cuyo caso finalizamos la búsqueda) ó en alguna iteración no se encuentra ninguna 
+			  solución vecina de costo menor que la solución actual, y se da por finalizada la búsqueda.
+			  
 	    \item Realizar una experimentación que permita observar la performance del algoritmo comparando los tiempos
 			  de ejecución y la calidad de las soluciones obtenidas, en función de las vecindades utilizadas y elegir,
 			  si es posible, la configuración que mejores resultados provea para el grupo de instancias utilizado.
@@ -548,6 +575,47 @@ Desarrollar los siguientes puntos:
 	 
 		\item Explicar detalladamente el algoritmo implementado. Plantear distintos criterios de parada y de selección de la 
 			  lista de candidatos (RCL) de la heurística golosa aleatorizada.
+			  
+			  La metaheurística GRASP (Greedy Randomized Adaptive Search Procedure) es una combinación entre una 
+			  heurística golosa "aleatorizada" y un procedimiento de búsqueda local. A grandes rasgos, lo que hace 
+			  nuestro algoritmo es:
+			  \begin{enumerate}
+				\item Mientras no se alcance el criterio de terminación: \\
+				      \begin{enumerate}
+						\item Obtener una solución $s \in S$ mediante nuestra heurística golosa, aleatorizada
+						\item Mejorar la solución $s$ mediante nuestra heurística de búsqueda local
+						\item Recordar la mejor solución obtenida hasta el momento
+						\item Volver a (a)
+				      \end{enumerate}
+			  \end{enumerate}
+			  
+			  Cuando usemos nuestra heurística golosa, no se elige en cada paso
+			  la mejor solución, sino que se confecciona una RCL (lista restricta de candidatos) de acuerdo con algún
+			  criterio de selección, y en cada paso se elige aleatoriamente un candidato de dicha lista. Dos opciones podrían ser:
+			  \begin{enumerate}
+				\item que la RCL contenga los candidatos cuyo valor sea no menor que un cierto porcentaje $\alpha$ del valor
+					  del mejor candidato
+			    \item que la RCL contenga los mejores $\beta$ candidatos
+			    \item una combinación de ambas
+			  \end{enumerate}
+			  
+			  En nuestro caso, optamos por la opción (b), ya que es la más simple, y no plantea inconvenientes en cuanto a la complejidad 
+			  temporal ni algorítmica que requiere al ser implementada. Es decir, en cada paso no agregamos a un conjunto
+			  el nodo con máxima arista incidente, sino que nos armamos una lista con los $\beta$ nodos con mayor máxima arista
+			  incidente y elegimos aleatoriamente uno de dichos nodos para agregarlo al conjunto en el que
+			  este genere menor hazard.
+			  
+			  Cada solución obtenida de esta forma será mejorada en el próximo paso del algoritmo mediante 
+			  nuestra heurística de búsqueda local a partir de la vecindad que nos dio mejores resultados. 
+			  Si de esta forma obtenemos una solución mejor que la última mejor solución obtenida, nos guardamos esta nueva solución.
+			  
+			  Después de esto, el procedimiento continúa generando soluciones con randomized greedy y mejorándolas con búsqueda local,
+			  hasta que se cumpla el criterio de parada elegido, que podría ser, por ejemplo: que no se 
+			  encontró una mejora en las últimas $k$ iteraciones, se alcanzó un límite prefijado de $k$ iteraciones, se obtuvo
+			  una solución cercana cero (que es cota inferior para el costo de cada solución), o que se obtuvo muchas 
+			  veces la misma solución. \\
+			  En nuestro caso, optamos por cortar la búsqueda cuando no se encontró una mejora en las últimas $k$ iteraciones.
+			  
 			  
 		\item Realizar una experimentación que permita observar los tiempos de ejecución y la calidad de las soluciones
 			  obtenidas. Se debe experimentar variando los valores de los parámetros de la metaheurística (lista de candidatos,

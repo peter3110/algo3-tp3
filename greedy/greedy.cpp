@@ -134,13 +134,13 @@ vector< vector<int> > actualizar_conjuntos(int nodo, int k, vector< vector<int> 
   //~ cout << "Agrego " << nodo << " a " << indice_conj << endl;
   
   /* escribo conjuntos */
-  //~ for(int i=0; i<(int)conjuntos.size(); i++) {
-	  //~ for(int j=0; j<(int)conjuntos[0].size(); j++) {
-		  //~ cout << conjuntos[i][j] << " " ;  
-	  //~ }  
-	  //~ cout << endl;
-  //~ }
-  //~ cout << endl;
+  for(int i=0; i<(int)conjuntos.size(); i++) {
+	  for(int j=0; j<(int)conjuntos[0].size(); j++) {
+		  cout << conjuntos[i][j] << " " ;  
+	  }  
+	  cout << endl;
+  }
+  cout << endl;
   
   tam_conjuntos[indice_conj]++;
  
@@ -169,10 +169,10 @@ vector<int> greedy(int n, int m, int k, vector< pair< pair<int, int>, double> > 
 	conj_nuevo = actualizar_conjuntos(G2[i].valor, k, conjuntos, peso_total, tam_conjuntos, n, G2);
   }
   
-  for(int i=0; i<(int)conjuntos.size(); i++) {
-	  for(int j=0; j<(int)conjuntos[0].size(); j++) {
-		  if(conjuntos[i][j] == 1) {
-			  res[j+1] = i+1;
+  for(int j=0; j<(int)conjuntos.size(); j++) {
+	  for(int i=0; i<(int)conjuntos[0].size(); i++) {
+		  if(conjuntos[j][i] == 1) {
+			  res[i+1] = j+1;
 		  }  
 	  }  
   }
