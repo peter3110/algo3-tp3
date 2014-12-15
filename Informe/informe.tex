@@ -157,9 +157,11 @@ Desarrollar los siguientes puntos:
 	Diseñar e implementar un \textbf{algoritmo exacto} para k-PMP y desarrollar los siguientes puntos:
 	\begin{enumerate}
 	
-		\item 1
-		\item 2
-		\item 3
+		\item Explicar detalladamente el algoritmo implementado. Elaborar podas y estrategias que permitan mejorar
+		      los tiempos de resolución
+		\item Calcular el orden de complejidad temporal de peor caso del algoritmo
+		\item Realizar una experimentación que permita observar los tiempos de ejecución del algoritmo en función
+		      del tamaño de entrada y de las podas y/o estrategias implementadas
 	\end{enumerate}	
 			
 			
@@ -186,7 +188,7 @@ Desarrollar los siguientes puntos:
 			ordenamos la lista de nodos según: 
 			\begin{enumerate}
 				\item según el peso de la máxima arista incidente en cada nodo y, en caso de empate
-				\item según la suma total de las aristas incidentes en cada nodo (de menor a mayor).
+				\item según la suma total de las aristas incidentes en cada nodo (de mayor a menor).
 			\end{enumerate}
 			La razón por la cuál elegimos el primer criterio, es para asegurarnos de agregar al principio los nodos
 			que tienen aristas incidentes de mucho peso a conjuntos distintos.
@@ -196,7 +198,7 @@ Desarrollar los siguientes puntos:
 			mucho peso no sumen costo a la solución final. \\
 			La razón por la cuál elegimos el segundo criterio (para desempatar), es que, si asignamos conjunto
 			primero a los nodos que generan mayor hazard (con mayor suma total de sus aristas incidentes), intentamos
-			agregar en conjuntos distintos a los nodos que potencialmente generan mayor hazard. Así, cada vez que 
+			agregar siempre en conjuntos distintos a los nodos que potencialmente generan mayor hazard. Así, cada vez que 
 			tengamos que agregar un nuevo nodo a algún conjunto, esperamos tener mayor cantidad de conjuntos en donde 
 			meter dicho nodo sin generar demasiado hazard extra. \\
 			
@@ -210,12 +212,17 @@ Desarrollar los siguientes puntos:
 		  \Output{res: lista de enteros tal que res[i] contiene el índice del conjunto al cuál pertenece el nodo i}
 		  vector$<int>$ conjuntos \\
 		  vector$<int>$ tam-conjuntos \\
-		  ordenar $G$ según el peso de la máxima arista incidente a cada nodo \\
+		  ordenar $G$ según el peso de la máxima arista incidente a cada nodo y en caso de empate según la máxima suma
+		  de las aristas adyacentes a cada nodo \\
 		  \For{cada nodo i = 1 $\dots$ n de $G$ }{
+				$valorMin$ = INF \\
 				\For{cada conjunto j = 1 $\dots$ k}{
-					-calcular $m$ = índice del conjunto que, al agregarle el nodo $i$ se le agrega el menor
-					peso \\
-					-agregar nodo $i$ al conjunto $m$ (conjuntos[$m$] = $i$) \\
+					-calcular $h$ = hazard que genera agregar el nodo $i$ al conjunto $j$ (esto lo hace la función
+					CalcularHazard) \\
+					\If{$h < $ valorMin}{
+						- $valorMin$ = $h$ \\
+						- agregar nodo $i$ al conjunto $j$ (conjuntos[$j$] = $i$) \\
+					}
 				}
 		  }
 		  return conjuntos
@@ -262,21 +269,52 @@ Desarrollar los siguientes puntos:
 		los nodos del grafo.
 		
 		\item Calcular el orden de complejidad de peor caso del algoritmo:
-		El algoritmo que desarrollamos utiliza dos $for$, que van uno entre $1 \dots n$ y otro entre $1..k$.
+		
+		Como se puede observar en el pseudocódigo que expusimos en 1.b), el algoritmo que desarrollamos utiliza dos $for$, 
+		que van uno entre $1 \dots n$ y otro entre $1..k$.
 		Si la complejidad de lo que hay adentro de estos ciclos es $O(T(n))$, entonces la complejidad total
 		del algoritmo sería $O(knT(n))$. \\
-		Dentro de estos ciclos lo que hacemos es determinar a qué conjunto $m$ agregar el nodo $i$. Para esto,
-		lo que hacemos es recorrer para el nodo actual los $k$ conjuntos ($O(k)$) y en cada pasada calculamos 
-		cuál sería el costo que generaría agregar el nodo $i$ al conjunto $k$. Esto lo hacemos de forma lineal 
+		Dentro de estos ciclos lo que hacemos es llamar a la función CalcularHazard. Como se puede ver en el pseudocódigo
+		expuesto a continuación, lo que hace dicha función es
+		recorrer para el $nodoActual$ todos sus adyacentes e ir chequeando si cada adyacente está en el conjunto $conj$. 
+		Si sí lo está, entonces actualizamos el hazard que generaría agregar al nodo $nodoActual$ al conjunto $conj$. 
+		Esto lo hacemos de forma lineal 
 		en $|V(G)|$, a partir de haber guardado el grafo $G$ en una estructura conveniente (lista de adyacencia 
-		de nodos). Luego, $T(n) = O(kn)$. \\
-		Entonces, la complejidad de nuestro algoritmo en el peor caso es $ O(knT(n)) = O(k^2 n^2)$.
+		de nodos). Luego, $T(n) = O(n)$. \\
+		Entonces, la complejidad de nuestro algoritmo en el peor caso es $ O(knT(n)) = O(k n^2)$.
+		
+		\begin{algorithm}[H]
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+		  \Input{grafo ($G$), conjunto al que quiero agregar un nodo ($conj$), nodo que quiero agregar a conj ($nodoNuevo$)}
+		  \Output{costo de agregar el nodo $nodoNuevo$ al conjunto $conj$}
+		  hazardAgregado = 0 \\
+		  \For{cada nodo $i$ adyacente a $nodoNuevo$}{
+			\If{el i-ésimo nodo adyacente a $nodoNuevo$ está en el conjunto $conj$}{
+				deltaPeso = peso de la arista que une $nodoNuevo$ con el i-ésimo nodo adyacente a $nodoNuevo$ \\
+				hazardAgregado = hazardAgregado + deltaPeso \\
+			}
+		  }
+		  return hazardAgregado \\
+		\caption {Función CalcularHazard, que calcula el costo de agregar el nodo $nodoNuevo$ al conjunto $conj$.}
+		\end{algorithm}
+		
 		
 		\item Describir instancias de $k$-PMP para las cuales la heurística no proporciona una solución
 		óptima. Indicar qué tan mala puede ser la solución respecto de la solución óptima.
 		
 		Veamos dos ejemplos en los que nuestra heurística no funciona correctamente. En estos ejemplos,
 		la solución es infinitamente peor que la óptima.
+		
+		En el primer ejemplo, se busca una 2-PMP del grafo $G_{0}$. Dicho grafo es un ciclo de nodos unidos por aristas 
+		de peso infinito y con algunas aristas internas, de peso 1. Como se puede observar en los esquemas,
+		la heurística proporciona una solución de peso infinito, mientras que la solución óptima tiene peso cero.
+		El problema con el que se encuentra la heurística radica en que se recorren los nodos en cierto orden, y
+		una vez que se coloca cada nodo en algún conjunto, este no puede ser cambiado a otro. En este 
+		ejemplo en particular, se recorren los nodos del grafo en el orden: N6, N4, N2, N3, N1, N5. Entonces,
+		cuando llegamos a agregar el nodo N3, ya se han agregado los nodos N6 y N2 al conjunto A, y el nodo
+		N4 al conjunto B. Entonces, a esta altura ya sea que  agreguemos el nodo N3 al conjunto A o al B, en 
+		cualquiera de los conjuntos agregaremos hazard infinito.
 		
 		\begin{figure}[H]
 			\begin{minipage}{.6\textwidth}
@@ -290,17 +328,24 @@ Desarrollar los siguientes puntos:
 			\end{minipage}
 		\end{figure}
 		
-		En este primer ejemplo, se busca una 2-PMP del grafo $G_{0}$. Dicho grafo es un ciclo de nodos unidos por aristas 
-		de peso infinito y con algunas aristas internas, de peso 1. Como se puede observar en los esquemas,
-		la heurística proporciona una solución de peso infinito, mientras que la solución óptima tiene peso cero.
-		El problema con el que se encuentra la heurística radica en que se recorren los nodos en cierto orden, y
-		una vez que se coloca cada nodo en algún conjunto, este no puede ser cambiado a otro. En este 
-		ejemplo en particular, se recorren los nodos del grafo en el orden: N6, N4, N2, N3, N1, N5. Entonces,
-		cuando llegamos a agregar el nodo N3, ya se han agregado los nodos N6 y N2 al conjunto A, y el nodo
-		N4 al conjunto B. Entonces, a esta altura ya sea que  agreguemos el nodo N3 al conjunto A o al B, en 
-		cualquiera de los conjuntos agregaremos hazard infinito.
 		
-		\begin{figure}[H]
+		En el ejemplo 2, se busca una 2-PMP del grafo $G_{1}$.  Dicho grafo es completo bipartito,
+		a excepción de dos nodos $u$ y $v$ en uno de los conjuntos que conforman la bipartición, que están unidos por una
+		arista de peso 1. Las aristas que unen cada nodo de un lado de la bipartición con nodos del otro lado de la 
+		bipartición tienen, como se observa en el dibujo, peso INF. 
+		La solución óptima a este problema es la presentada en la segunda
+		figura, y es de peso $1 < \infty$, mientras que la solución que brinda nuestra heurística es de peso
+		infinito, y una posible representación de la misma esta esquematizada en la primera figura. 
+		La heurística falla
+		porque vamos agregando los nodos a cada conjunto en un orden que nos conduce a una solución no óptima. En este caso,
+		los nodos $u$ y $v$ son los que primero van a ser agregados a conjuntos. Entonces, como nuestro algoritmo
+		es goloso y cada vez que agrega un nodo a un conjunto, lo agrega al conjunto que minimiza el hazard nuevo que se
+		genera en la solución, se envía $u$ a un conjunto (rojo) y $v$ al otro (azul). Esto hace que, más adelante, para 
+		cada nodo del conjunto B, como está unido tanto a $u$ como a $v$, 
+		no importa si lo agregamos al conjunto rojo o al conjunto azul, en ambos casos el hazard extra que genera
+	    es siempre INF. Esto hace que, al final, nuestra solución siempre tenga peso infinito. \\
+	    
+	    \begin{figure}[H]
 		\begin{minipage}{.6\textwidth}
 		\centering
 		\includegraphics[width=.8\linewidth]{imagenes/ej3_21}
@@ -311,20 +356,6 @@ Desarrollar los siguientes puntos:
 		\caption{Solución óptima}
 		\end{minipage}
 		\end{figure}
-		
-		En el ejemplo 2, se busca una 2-PMP del grafo $G_{1}$.  Dicho grafo consta de un subgrafo completo bipartito,
-		conformado por los conjuntos de nodos A y B, y de un nodo $u$, unido mediante una arista con todos los nodos
-		del conjunto A. Cada arista que une nodos de A con B tiene peso INF, mientras que cada arista que une al nodo
-		$u$ con nodos del conjunto A, tiene peso 1. La solución óptima a este problema esta presentada en la segunda
-		figura, y es de peso $M$, con $M < \infty$, mientras que la solución que brinda nuestra heurística es de peso
-		infinito, y una posible representación de la misma esta esquematizada en la primera figura. La heurística falla
-		porque vamos agregando los nodos a cada conjunto en un orden que nos conduce a una solución no óptima. En este caso,
-		los nodos del conjunto A son los que primero van a ser agregados a conjuntos. Entonces, como nuestro algoritmo
-		es goloso y cada vez que agrega un nodo a un conjunto, lo agrega al conjunto que minimiza el hazard nuevo que se
-		genera, seguro que van a haber al menos dos nodos $x,y \in A$ tales que $x$ sea agregado al conjunto 1 e $y$ al
-		conjunto 2. Esto hace que, más adelante, para cada nodo del conjunto B, como está unido tanto a $x$ como a $y$, 
-		no importa si lo agregamos al conjunto 1 o al conjunto 2, en ambos casos el hazard extra que se genera
-	    es siempre INF. Esto hace que, al final, nuestra solución siempre tenga peso infinito. \\
 		
 		
 		\item Realizar una experimentación que permita observar la performance del algoritmo en términos
@@ -360,14 +391,15 @@ Desarrollar los siguientes puntos:
 		Las dos vecindades que definimos fueron:
 		\begin{enumerate}
 			\item para cada nodo, chequear si cambiándolo a algún otro conjunto, se podría reducir el costo
-			      total de la solución. Un pseudocódigo para el algoritmo implementado sería:
+			      total de la solución.
 			\item para cada nodo, chequear si swappeandolo de conjunto con otro nodo ó mandándolo a un conjunto que esté
 			      vacío se reduce el costo.
 		\end{enumerate}
 		
-		A continuación, presentamos el pseudocódigo para cada una de las vecindades.
-		
-		  \begin{algorithm}
+		A continuación, presentamos el pseudocódigo para cada una de las vecindades. \\
+		\textbf{Nota: } La función calcularCosto(G,v,i) recorre los nodos adyacentes al nodo $i$, y acumula la suma
+	         		    de las aristas que unen a $i$ con algún otro nodo adyacente a $i$ en la solución actual.
+      \begin{algorithm}[H]
 			\SetKwInOut{Input}{input}
 			\SetKwInOut{Output}{output}
 			  \Input{grafo $G$, solución parcial $v$}
@@ -389,16 +421,10 @@ Desarrollar los siguientes puntos:
 				}
 			  }
 			  return res \\
-			\caption{Algoritmo de búsqueda local con vecindad 1}
-			\end{algorithm}
-	  
-	  \textbf{Nota: } La función calcularCosto(G,v,i) recorre los nodos adyacentes al nodo $i$, y acumula la suma
-					  de las aristas que unen a $i$ con algún otro nodo adyacente a $i$ en la solución actual
-			     
-				 
-				 
-				  
-	  \begin{algorithm}
+	  \caption{Algoritmo de búsqueda local con vecindad 1}
+	  \end{algorithm}
+			      
+		\begin{algorithm}[H]
 		\SetKwInOut{Input}{input}
 		\SetKwInOut{Output}{output}
 		  \Input{grafo $G$, solución parcial $v$}
@@ -406,9 +432,8 @@ Desarrollar los siguientes puntos:
 		  
 		  \For{ cada nodo $i = 1 \dots n$ }{
 			
-			nodoModificado1 = -1 \\
-			nodoModificado2 = -1 \\
-			costoOriginal = v.second \\
+			// Primera parte: chequear el costo generado si hacemos algún swap \\
+			costoOriginal = v.second 	// costo de la solución sin hacer el swappeo\\
 			
 			\For{ cada nodo $j = 1 \dots n$ }{
 			
@@ -424,52 +449,27 @@ Desarrollar los siguientes puntos:
 				costoNuevo = costoNodoNuevo1 + costoNodoNuevo2 \\
 				
 				\eIf{costoNuevo $<$ costoViejo}{
-					res = 1 \\
-					v.second = v.second - costoViejo + costoNuevo \\
-					nodoModificado1 = i \\
-					nodoModificado2 = j 		// guardo los nodos con los que hice el swap \\
-					break (!!!!!!!!!!!!!!!!!!!!!!!!!) \\
+					v.second = v.second - costoViejo + costoNuevo // actualizo costo haciendo swap\\
+					break // encontré swap conveniente. Dejo de buscar posibles swaps\\
 				}{
-					swap(v.first[i], v.first[j])	// reestablezco el swapeo que habíamos hecho \\
+					swap(v.first[i], v.first[j])	// si no encontré un swap que disminuya el costo \\
 				}
 				
 				
 			}
 			
-			conjuntoVacio = indice de algun conjunto vacio 	// O(k) \\
-			\If{ conjuntoVacio es un indice valido }{
-				encontreMejorSeparado = 0 \\
-				meGuardoCosto = v.second \\
-				meGuardoNodoCambiado = -1 \\
-				
-				\If{ hicimos algun swap }{
-					swap(v.first[nodoModificado1], v.first[nodoModificado2]) // deshacemos el swap para ver si convenia cambiar
-																				algun nodo al conjunto vacio\\
-				}
-				
+			// Segunda Parte: calcular costo generado cambiando un nodo a un conjunto vacío \\
+			\If{ hay algún conjunto vacío }{	
 				\For{ cada nodo $j = 1 \dots n$ }{
-					deltaCostoDelCambio = calcularCosto(G,n,v,j) \\
-					costoDelCambio = costoOriginal - deltaCostoDelCambio \\
-					\If{costoDelCambio $<$ meGuardoCosto}{	// si encontre un nodo mejor que el ultimo encontrado \\
-						meGuardoCosto = costoDelCambio \\
-						meGuardoNodoCambiado = j \\
-						encontreMejorSeparado = 1 // quiere decir que es mejor cambiar un nodo a un conjunto vacio que 
-													 hacer el swap que habiamos hecho\\
+					\If{cambiar nodo $j$ al conjunto $conjuntoVacio$ genera menos hazard que el swap ó genera
+						menos que la solución actual (si no hicimos ningún swap) }{
+						- deshago el swap (sólo si habíamos hecho un swap) \\
+						- mando el nodo $j$ al conjunto $conjuntoVacio$ \\
+						- break // si encontramos un conjunto propicio, dejamos de buscar \\
 					}
-				}
-				
-				// Ahora me fijo si debo reestablecer el swapeo que habia hecho o no \\
-				\eIf{encontreMejorSeparado == 1 y habiamos hecho algun swap}{
-					swap(v.first[nodoModificado1], v.first[nodoModificado2]) \\
-				}{
-					v.second = meGuardoCosto \\
-					v.first[meGuardoNodoCambiado] = conjuntoVacio \\
-					Actualizo la cantidad de nodos que tengo por conjunto 	// O(1) \\
-					
 				}				
 			}
 		}
-		  
 		\caption{Algoritmo de búsqueda local con vecindad 2}
 		\end{algorithm}
 		
@@ -508,7 +508,7 @@ Desarrollar los siguientes puntos:
 		obtenemos una solución buena (costo total igual a 0). En este ejemplo en particular, como inicialmente no hay ningún conjunto vacío,
 		cuando utilizemos la vecindad 2, sólo se van a efectuar swaps de nodos entre conjuntos, y la cantidad de nodos que hay en cada conjunto
 		se va a mantener invariante (si hubiera algún conjunto vacío de seguro se le agregaría un nodo a dicho conjunto, ya que al cambiar un nodo
-		a un conjunto vacío, se reduce mucho la porción del costo total asociada a dicho nodo). \\
+		a un conjunto vacío, siempre se puede reducir más el costo total de la solución que haciendo un swap). \\
 		
 		\item Calcular el orden de complejidad temporal de peor caso de una iteración del algoritmo de búsqueda local
 			  (para las vecindades planteadas). Y si es posible, dar una cota superior para la cantidad de iteraciones
@@ -519,14 +519,20 @@ Desarrollar los siguientes puntos:
 			  de estos, llamamos a una función que calcula el costo de agregar el nodo a un conjunto, cuyo costo computacional
 			  es $O(n)$, pues cada nodo es adyacente como máximo a $n-1$ nodos).
 			  
-			  En el caso de la vecindad 2, el costo de cada iteración del algoritmo e búsqueda es $ O(n^3) $. Esto se deduce
-			  del pseudocódigo presentado más arriba: el algoritmos consta de una serie de ciclos $for$, dentro de los
-			  cuáles se llama a la función $calcualrCosto$, que tiene complejidad temporal $O(n)$. Observando el pseudocódigo,
+			  En el caso de la vecindad 2, el costo de cada iteración del algoritmo de búsqueda es $ O(n^3) $. Esto se deduce
+			  del pseudocódigo presentado más arriba: el algoritmo consta de una serie de ciclos $for$, dentro de los
+			  cuáles se llama a la función $calcularCosto$, que tiene complejidad temporal $O(n)$. 
+			  Luego, entre las líneas 4 y 18 la complejidad es $O(n^2)$. La línea 20 tiene una complejidad de $O(k)$, pues
+			  debe recorrer todos los conjuntos chequeando la cantidad de nodos que tienen. Entre las líneas 21 y 26, la 
+			  complejidad es $O(n^2)$ pues se recorren los $n$ nodos en un $for$ y en cada iteración de dicho ciclo, se 
+			  recalcula el hazard que tiene la nueva solución cambiando al nodo $j$ al conjunto $conjuntoVacio$ para ver si
+			  hacer este cambio genera menos hazard que generaba el swap. 
+			  Entonces, como todo lo recién mencionado está metido en un $for$ que recorre todos los nodos ($O(n)$), 
 			  se llega a que la complejidad es $T(n) = O(n^3) + O(nk) + O(n^3) = O(n^3) $.
 			  
 	    \item Realizar una experimentación que permita observar la performance del algoritmo comparando los tiempos
 			  de ejecución y la calidad de las soluciones obtenidas, en función de las vecindades utilizadas y elegir,
-			  si es posible, la configuración que mejores resultados provea pra el grupo de instancias utilizado.
+			  si es posible, la configuración que mejores resultados provea para el grupo de instancias utilizado.
     \end{enumerate}
 
 
