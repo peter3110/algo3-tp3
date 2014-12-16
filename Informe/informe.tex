@@ -86,9 +86,6 @@ Desarrollar los siguientes puntos:
 			      utilizar la menor cantidad de camiones posibles). Sin embargo, si la solución utilizara algún
 			      conjunto $j$ con $peso(j) > M$, entonces
 			      nuestra transformación no generaría una solución válida para el problema 1.
-			    
-			   
-			      
 			  \end{enumerate}
 		
 			\item Relacionar el problema de $k$-PMP con el problema de coloreo de los vértices
@@ -100,30 +97,67 @@ Desarrollar los siguientes puntos:
 				  aristas de $G$ sino que simplemente se preocupa por hacer un análisis de 
 				  adyacencias y no-adyacencias entre los nodos de dicho grafo.
 				  
-				  Si somos capaces de determinar una $k$-PMP para cualquier grafo, entonces también
+				  Sin embargo, si somos capaces de determinar una $k$-PMP para cualquier grafo $G$, entonces también
 				  somos capaces de determinar la existencia de un $k$-coloreo para cualquier
-				  grafo y, si existe, podemos dar explícitamente uno de estos. \\
-				  Tomemos el grafo $G$ para el cual queremos hallar un 
-				  $k$-coloreo.
-				  A toda arista $f=(u,v)$ de $E(G)$ le ponemos un peso: peso($f$) = $\infty$.
-				  Para los pares de nodos $u,v$ que no sean adyacentes, agregar
-				  una arista $e=(u,v)$ que los una, de peso $peso(e) = 1$. Luego, buscamos
-				  alguna $k$-PMP en el nuevo grafo $G'$. Si el peso total generado por dicha 
-				  partición es menor que infinito, entonces quiere decir que encontramos $k$ 
-				  conjuntos de vértices tales que en cada conjunto no hay ningún par de vértices 
-				  unidos por una arista de peso infinito (i.e. en cada conjunto, no puede haber
-				  dos nodos que fueran adyacentes en $G$, porque sino en $G'$ habría un eje
-				  intrapartición que uniría a estos nodos y haría que el peso total del conjunto
-				  se vaya a infinito).
-				  Entonces, suponiendo que cada conjunto $V_{i}$ es no vacío,  
-				  si a cada nodo $x \in V_{i}$ asignamos el color $i$, vamos a tener que
-				  para todo par de nodos $u,v \in V(G)$ $color(u)=color(v) \rightarrow $ $u$ y $v$ 
-				  no son adyacentes en $G$. Entonces, habremos encontrado un $k$-coloreo para el
-				  grafo $G$. Si tuviéramos $t < k$ conjuntos no vacíos,
-				  podríamos asegurar que encontramos un $t$-coloreo para el grafo $G$. Pero seguro que
-				  esto no sucede, porque como ya explicamos en el punto $(a)$, $k$-PMP va a utilizar las
-				  $k$ particiones (si utilizara sólo $t$ particiones, partiendo uno de los conjuntos de 
-				  dicha partición sólo se podría mejorar la solución actual). \\
+				  grafo $G'$.
+				  
+				  Tomemos el grafo $G$ para el cual queremos hallar un $k$-coloreo. Y a partir de dicho grafo, construyamos
+				  un nuevo grafo $G'$ tal que: 
+				  \begin{enumerate}
+					\item $V(G) = V(G')$ 
+					\item $E(G) = E(G')$, pero poniéndole a cada arista $f=(u,v)$ un peso: peso($f$) = $\infty$.
+					\item para los pares de nodos $u,v$ que no sean adyacentes en $G$, en $G'$ agregar
+						  una arista $f=(u,v)$ que los una, tal que $peso(f) = 0$. 
+				  \end{enumerate}
+				  Luego, buscamos una $k$-PMP en el nuevo grafo $G'$. Si el peso total generado por dicha 
+				  partición es cero, entonces quiere decir que es posible encontrar $k$ 
+				  conjuntos de vértices tales que en cada conjunto cada par de vértices está unido por una arista
+				  de peso cero (i.e. en cada conjunto, no puede haber
+				  dos nodos que fueran adyacentes en $G$, porque sino en $G'$ habría un eje de peso infinito
+				  que una a estos nodos y haría que el peso total del conjunto sea mayor que cero). 
+				  
+				  Entonces, definimos el k-coloreo $C: V(G) \rightarrow \mathbb{N} / $ $C(v)$ = $i$ sii $k$-PMP sobre $G'$ 
+				  manda a $v$ al conjunto $i$.
+				  
+				  Podemos asegurar que $C$ es un $k$-coloreo porque $k$-PMP siempre utiliza los $k$ conjuntos y en nuestra definición
+				  hacemos corresponder cada conjunto a un color diferente.
+				  
+				  Podemos asegurar que si $C$ es un coloreo válido entonces es óptimo y que si $C$ no es un coloreo válido,
+				  entonces $G$ no es $k$-coloreable. Esto es así porque $C$ es válido si y sólo si se encontró una $k$-PMP de costo
+				  total cero en $G'$: si el costo fuera mayor a cero, debería haber alguna arista que genere parte de este costo, y 
+				  las únicas aristas con peso positivo en $G'$ son las que habían en $E(G)$. Y si esta arista genera costo en $G'$, 
+				  quiere decir que $k$-PMP mandó los dos nodos incidentes en dicha arista al mismo conjunto. Entonces, nuestra función
+				  $C$ mandaría a estos dos nodos vecinos al mismo color. Pero entonces el coloreo resultante no sería válido. En cambio,
+				  si el costo total de la solución de $k$-PMP sobre $G'$ fuera cero, entonces nuestra función $C$ generaría un coloreo
+				  válido pues como el costo total es cero, sabemos que no se mandan nodos que fueran vecinos en $G$ al mismo conjunto.
+				  Y nuestra función $C$ manda los nodos que están en el mismo conjunto al mismo color.
+				  
+				  Veamos con un ejemplo, en el cuál buscamos un 2-coloreo para $G$ a partir de una 2-PMP de $G'$:
+				  
+				  \begin{figure}[H]
+					\begin{minipage}{.6\textwidth}
+					\centering
+					\includegraphics[width=.8\linewidth]{imagenes/ej1_2}
+					\caption{grafo G}
+					\end{minipage}
+					\begin{minipage}{.6\textwidth}
+					\includegraphics[width=.8\linewidth]{imagenes/ej1_22}
+					\caption{2-coloreo para G}
+					\end{minipage}
+				 \end{figure}
+				 
+				 \begin{figure}[H]
+					\begin{minipage}{.6\textwidth}
+					\centering
+					\includegraphics[width=.8\linewidth]{imagenes/ej1_23}
+					\caption{grafo G'}
+					\end{minipage}
+					\begin{minipage}{.6\textwidth}
+					\includegraphics[width=.8\linewidth]{imagenes/ej1_24}
+					\caption{2-PMP para G'}
+					\end{minipage}
+				 \end{figure}
+				  
  
 		      
 			\item Describir situaciones de la vida real que puedan modelarse utilizando k-PMP.
@@ -211,13 +245,12 @@ Desarrollar los siguientes puntos:
 		  \Input{n: cantidad de nodos, m: cantidad de aristas, k: cantidad de conjuntos, G: grafo}
 		  \Output{conjuntos: matriz de enteros tal que conjuntos[j][i] == 1 sii el conjunto j contiene al nodo i}
 		  vector$<int>$ conjuntos \\
-		  vector$<int>$ tam-conjuntos \\
-		  ordenar $G$ según el peso de la máxima arista incidente a cada nodo y en caso de empate según la máxima suma
+		  ordenar $G$ según el peso de la máxima arista incidente a cada nodo y en caso de empate según la suma
 		  de las aristas adyacentes a cada nodo \\
 		  \For{cada nodo i = 1 $\dots$ n de $G$ }{
 				$valorMin$ = INF \\
 				\For{cada conjunto j = 1 $\dots$ k}{
-					-calcular $h$ = hazard que genera agregar el nodo $i$ al conjunto $j$ (esto lo hace la función
+					- calcular $h$ = hazard que genera agregar el nodo $i$ al conjunto $j$ (esto lo hace la función
 					CalcularHazard) \\
 					\If{$h < $ valorMin}{
 						- $valorMin$ = $h$ \\
@@ -297,7 +330,7 @@ Desarrollar los siguientes puntos:
 		recorrer para el $nodoActual$ todos sus adyacentes e ir chequeando si cada adyacente está en el conjunto $conj$. 
 		Si sí lo está, entonces actualizamos el hazard que generaría agregar al nodo $nodoActual$ al conjunto $conj$. 
 		Esto lo hacemos de forma lineal 
-		en $|V(G)|$, a partir de haber guardado el grafo $G$ en una estructura conveniente (lista de adyacencia 
+		en $|V(G)| = n $, a partir de haber guardado el grafo $G$ en una estructura conveniente (lista de adyacencia 
 		de nodos). Luego, $T(n) = O(n)$. \\
 		Entonces, la complejidad de nuestro algoritmo en el peor caso es $ O(knT(n)) = O(k n^2)$, ya que la función 
 		$transformarSolucion$ consta de dos $for$ que van entre 1 y $n$, con lo cual tiene complejidad 
@@ -364,13 +397,13 @@ Desarrollar los siguientes puntos:
 		genera en la solución, se envía $u$ a un conjunto (rojo) y $v$ al otro (azul). Esto hace que, más adelante, para 
 		cada nodo del conjunto B, como está unido tanto a $u$ como a $v$, 
 		no importa si lo agregamos al conjunto rojo o al conjunto azul, en ambos casos el hazard extra que genera
-	    es siempre INF. Esto hace que, al final, nuestra solución siempre tenga peso infinito. \\
+	    es siempre INF. Esto hace que, al final, nuestra solución no sea la óptima. \\
 	    
 	    \begin{figure}[H]
 		\begin{minipage}{.6\textwidth}
 		\centering
 		\includegraphics[width=.8\linewidth]{imagenes/ej3_21}
-		\caption{Solución de la heurística}
+		\caption{Mejor solución posible de la heurística}
 		\end{minipage}
 		\begin{minipage}{.6\textwidth}
 		\includegraphics[width=.8\linewidth]{imagenes/ej3_22}
@@ -547,14 +580,14 @@ Desarrollar los siguientes puntos:
 			  debe recorrer todos los conjuntos chequeando la cantidad de nodos que tienen. Entre las líneas 21 y 26, la 
 			  complejidad es $O(n^2)$ pues se recorren los $n$ nodos en un $for$ y en cada iteración de dicho ciclo, se 
 			  recalcula el hazard que tiene la nueva solución cambiando al nodo $j$ al conjunto $conjuntoVacio$ para ver si
-			  hacer este cambio genera menos hazard que generaba el swap. 
+			  hacer este cambio genera menos hazard que generaba el swap en $O(n)$. 
 			  Entonces, como todo lo recién mencionado está metido en un $for$ que recorre todos los nodos ($O(n)$), 
 			  se llega a que la complejidad es $T(n) = O(n^3) + O(nk) + O(n^3) = O(n^3) $.
 			  
 			  Además, podemos asegurar que la cantidad de iteraciones que se efectúan son como máximo $S$ iteraciones, 
 			  donde $S$ es el peso de la solución aleatoria con la que iniciamos el algoritmo. Esto es así porque en cada
-			  iteración o se baja en al menos una unidad el costo de la solución y se sigue iterando (hasta llegar, como 
-			  máximo a costo cero, en cuyo caso finalizamos la búsqueda) ó en alguna iteración no se encuentra ninguna 
+			  iteración o se baja en al menos una unidad el costo de la solución y se sigue iterando (hasta llegar como 
+			  máximo a costo cero en cuyo caso finalizamos la búsqueda) ó en alguna iteración no se encuentra ninguna 
 			  solución vecina de costo menor que la solución actual, y se da por finalizada la búsqueda.
 			  
 	    \item Realizar una experimentación que permita observar la performance del algoritmo comparando los tiempos
