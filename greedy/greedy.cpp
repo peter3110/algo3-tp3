@@ -186,8 +186,12 @@ bool cmp(nodoaux a, nodoaux b)
   double temp1 = a.max_arista_incidente;
   double temp2 = b.max_arista_incidente;
   
+  if(temp1 == temp2 && a.suma_total_aristas == b.suma_total_aristas) {
+	  return a.adyacentes.size() > b.adyacentes.size();  
+  }
+  
   if(temp1 == temp2) {
-	  return (a.suma_total_aristas >= b.suma_total_aristas);
+	  return (a.suma_total_aristas > b.suma_total_aristas);
   }
   return (temp1 > temp2);
 }

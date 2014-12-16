@@ -222,19 +222,26 @@ Desarrollar los siguientes puntos:
 			ordenamos la lista de nodos según: 
 			\begin{enumerate}
 				\item según el peso de la máxima arista incidente en cada nodo y, en caso de empate
-				\item según la suma total de las aristas incidentes en cada nodo (de mayor a menor).
+				\item según la suma total de las aristas incidentes en cada nodo (de mayor a menor) y, en caso de empate
+				\item según la cantidad de vecinos de cada nodo (de mayor a menor)
 			\end{enumerate}
 			La razón por la cuál elegimos el primer criterio, es para asegurarnos de agregar al principio los nodos
 			que tienen aristas incidentes de mucho peso a conjuntos distintos.
 			Es esperable que este tipo de ordenamiento dé buenos resultados en grafos con pocas aristas de mucho
 			peso y muchas aristas de bajo peso en comparación, ya que el algoritmo va a enviar los nodos 
 			que son adyacentes a esas aristas de mucho peso a conjuntos distintos, logrando así que las aristas de
-			mucho peso no sumen costo a la solución final. \\
+			mucho peso no sumen costo a la solución final.
+			
 			La razón por la cuál elegimos el segundo criterio (para desempatar), es que, si asignamos conjunto
 			primero a los nodos que generan mayor hazard (con mayor suma total de sus aristas incidentes), intentamos
 			agregar siempre en conjuntos distintos a los nodos que potencialmente generan mayor hazard. Así, cada vez que 
 			tengamos que agregar un nuevo nodo a algún conjunto, esperamos tener mayor cantidad de conjuntos en donde 
-			meter dicho nodo sin generar demasiado hazard extra. \\
+			meter dicho nodo sin generar demasiado hazard extra.
+			
+			La razón por la cuál elegimos el tercer criterio es similar a la razón del segundo criterio: siempre intentamos que
+			se agreguen en distintos conjuntos los nodos que potencialmente pueden generar más hazard. Y creemos que cuantos más
+			nodos sean adyacentes a un nodo, mayor será la probabilidad que tenga algún vecino de peso alto.
+			
 			
 		\end{enumerate}
 		
