@@ -28,7 +28,9 @@ void read(int &n, int &m, int &k, vector< pair< pair<int, int>, double> > &G);
 vector<int> greedy(int n, int m, int k, vector< pair< pair<int, int>, double> > &G, int beta);
 bool cmp(nodoaux a, nodoaux b);
 
-pair<vector<int>, double> minlocal(int n, int m, int k, vector< pair< pair<int, int>, double> > &G, vector<int> &conjuntos, int vecindad) ;
+pair<vector<int>, double> minlocal(int n, int m, int k, vector< pair< pair<int, int>, double> > &G, vector<int> &conjuntos, int vecindad);
+vector<nodoaux> generar_grafo_nodos(vector< pair< pair<int, int>, double > > &G, int n);
+double calcular_costo_conj_inicial(vector<int> &conjuntos, vector<nodoaux> &G2);
 
 /* main */
 int main() {
@@ -44,24 +46,32 @@ int main() {
   int iter = 0;
   vector<int> conjuntos, mejorSolucion;
   double mejorPeso = INF;
+  srand (time(NULL));			// Acá debería estar la semilla para randomizar greedy
   
   while(iter < MAX_ITER){
 	  
 	  /* resuelvo con la función greedy randomizada */
 	  conjuntos = greedy(n,m,k,G,beta);
+	  vector<nodoaux> G3 = generar_grafo_nodos(G,n);
+	  cout << "Peso del greedy randomizado : " << calcular_costo_conj_inicial(conjuntos, G3) << endl;
 	  
 	  /* Intento mejorar solucion de greedy con vecindad 1 */
 	  pair<vector<int>, double> solucion_mejorada_vecindad1 = minlocal(n,m,k,G,conjuntos,1);
+	  //~ cout << "solucion si hacemos local 1: " << solucion_mejorada_vecindad1.second << endl;
+	  
 	  pair<vector<int>, double> solucion_mejorada_vecindad2 = minlocal(n,m,k,G,conjuntos,2);
+	  //~ cout << "solucion si hacemos local 2 : " << solucion_mejorada_vecindad2.second << endl;
 	  
 	  if(solucion_mejorada_vecindad1.second < solucion_mejorada_vecindad2.second) {
+		  
+			//~ cout << "encuentro mejor solucion con vecindad 1" << endl;
 			mejorSolucion = solucion_mejorada_vecindad1.first;
-			mejorPeso = solucion_mejorada_vecindad1.second;
-			cout << "encuentro mejor solucion con vecindad 1" << endl;
+			if(solucion_mejorada_vecindad1.second < mejorPeso) { mejorPeso = solucion_mejorada_vecindad1.second; }
 	  } else {
-			if(solucion_mejorada_vecindad2.second < solucion_mejorada_vecindad1.second) {cout << "encuentro mejor solucion con vecindad 2" << endl;}
+		  
+			//~ cout << "encuentro mejor o igual solucion con vecindad 2" << endl;
 			mejorSolucion = solucion_mejorada_vecindad2.first;
-			mejorPeso = solucion_mejorada_vecindad1.second;
+			if(solucion_mejorada_vecindad2.second < mejorPeso) { mejorPeso = solucion_mejorada_vecindad1.second; }
 	  }
 	  
 	  ///if (LOCAL(CONJUNTOS) < peso(conjuntos)) { conjuntos = LOCAL(CONJUNTOS)}
@@ -70,8 +80,8 @@ int main() {
 }
 
   /* escribo el resulado en pantalla */
+  cout << "Peso Minimo Conseguido: " << mejorPeso << endl;
   for(int i=1; i<=n; i++) {cout << mejorSolucion[i] << " ";} cout << endl;
-  cout << "Peso Total: " << mejorPeso << endl;
   cout << endl;
 
   return 0;
@@ -177,8 +187,10 @@ vector<pair<int, pair<double, double> > >RCL(beta, make_pair(-1, make_pair(valor
 
 
   }
-  srand (time(NULL));
-   int rnd_ind=rand() % RCL.size();
+  
+  //~ srand (time(NULL));
+  
+  int rnd_ind=rand() % RCL.size();
   while(RCL[rnd_ind].first <0){ rnd_ind=rand() % RCL.size(); ///garantizo indice valido TERMINA RANDOM
 
 }
