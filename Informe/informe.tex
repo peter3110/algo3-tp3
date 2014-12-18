@@ -7,7 +7,7 @@
 \begin{document}
 
 % -- Carátula --
-%\clearpage{\pagestyle{empty}\input{caratula}\cleardoublepage}
+\clearpage{\pagestyle{empty}\input{caratula}\cleardoublepage}
 
 %% =====================================================================
 
@@ -38,8 +38,8 @@ Desarrollar los siguientes puntos:
 			  $|V| = n$ y cada par de nodos $u,v$ están conectados por una arista $e = (u,v)$ de
 			  peso igual a la peligrosidad que generan los productos $u$ y $v$ al estar en un
 			  mismo camión. Ahora, llamaremos al problema del TP1 "problema 1" y al problema de hallar
-			  una k-PMP, "problema 2" y veremos si en distintos casos es posible utilizar cada uno 
-			  de estos dos problemas para resolver el otro.
+			  una k-PMP, "problema 2" y veremos si en distintos casos es posible utilizar soluciones para cada uno 
+			  de estos dos problemas para generar soluciones para el otro.
 			  \begin{enumerate}
 			      \item supongamos que tenemos una solución para el problema 1. En dicha solución, se
 			      cuenta con los camiones $c_{1} \dots c_{k}$, tales que $(\forall i=1..k) 
@@ -47,8 +47,7 @@ Desarrollar los siguientes puntos:
 			      Ahora, podemos definir un grafo $G'$ tal que cada producto $p_{i}$ se corresponda
 			      con un nodo $n_{i}$ y que si entre los productos $p_{i}$ y $p_{j}$ se genera un hazard $x$, en 
 			      el grafo $G'$, los nodos $n_{i}$ y $n_{j}$ estén unidos por una arista de peso $x$. A partir de 
-			      la solución al problema 1, construimos una solución al problema 2 sobre el grafo $G'$ (que llamaremos
-			      \texttt{solución hermana} a la solución del problema 1) de la 
+			      la solución al problema 1, construimos una solución al problema 2 sobre el grafo $G'$ de la 
 			      siguiente manera: para cada nodo $n_{i} \in G'$, si $p_{i}$ fue enviado al camión $c_{j}$, mandamos
 			      al nodo $n_{i}$ al conjunto $j$. Así, obtenemos una solución para el problema 2 sobre el grafo
 			      $G'$ de costo total $S = \sum\limits_{i=1}^k peligrosidad(c_{i})$. Entonces, podemos asegurar que
@@ -56,19 +55,17 @@ Desarrollar los siguientes puntos:
 			      podría no ser óptima porque el problema 1 impone una restricción en el hazard que puede 
 			      haber en cada camión, pero el problema 2 no impone ninguna restricción en el hazard que puede haber
 			      en cada conjunto. Y, en nuestra transformación de una solución del problema 1 en otra solución para
-			      el problema 2, hacemos que cada camión corresponda a un conjunto. Con lo cual podríamos no estar
+			      el problema 2, hacemos que cada camión se corresponda con un único conjunto. Con lo cual podríamos no estar
 			      considerando algunas soluciones que sí habría que considerar en el problema 2.
 			      
-			      \item por otro lado, supongamos que, contando sólo con los camiones $c_{1} \dots c_{k}$, sabemos
-			      que el problema 1 no tiene solución. Entonces, si construimos el mismo grafo $G'$ que construimos
-			      en el item anterior, \textbf{no} podemos decir nada sobre la existencia o no de una solución
-			      al problema 2 sobre el grafo $G'$, porque el problema 1 impone una restricción en el hazard que
-			      puede haber en cada camión, pero en el problema 2 puede haber cualquier cantidad de hazard en cada
-			      conjunto. Entonces, al igual que en el item anterior, debido a la forma en que transformamos soluciones
-			      al problema 1 en soluciones al problema 2, podrían existir soluciones para el problema 2
-			      en el grafo $G'$, que no tengan \texttt{solución hermana} en el problema 1. Esto, obviamente, no sucede
-			      en el caso en que $M = \infty$, puesto que en ese caso, no hay ninguna restricción en el problema 1
-			      para el hazard que puede haber en cada camón. 
+			      %~ \item por otro lado, supongamos que, contando sólo con los $k$ camiones $c_{1} \dots c_{k}$, sabemos
+			      %~ que el problema 1 no tiene solución. Entonces, si construimos el mismo grafo $G'$ que construimos
+			      %~ en el item anterior, \textbf{no} podemos decir nada sobre la existencia o no de una solución
+			      %~ al problema 2 sobre el grafo $G'$, porque el problema 1 impone una restricción en el hazard que
+			      %~ puede haber en cada camión, pero en el problema 2 puede haber cualquier cantidad de hazard en cada
+			      %~ conjunto. Entonces, al igual que en el item anterior, debido a la forma en que transformamos soluciones
+			      %~ al problema 1 en soluciones al problema 2, podrían existir soluciones para el problema 2
+			      %~ en el grafo $G'$, que no tengan \texttt{solución hermana válida} en el problema 1.
 			      
 			      \item supongamos que tenemos una solución para el problema 2, sobre el grafo $G'$. En dicha 
 			      solución, se cuenta con
@@ -76,15 +73,13 @@ Desarrollar los siguientes puntos:
 			      construir una instancia para el problema 1 de la siguiente forma: el nodo $v_{i}$, corresponderá
 			      al producto $p_{i}$. Para cada par de nodos $v_{i}$ y $v_{j}$ unidos por una arista de peso $x$,
 			      vamos a asignar una hazard de $x$ unidades para el par de productos $p_{i}$ y $p_{j}$. Además,
-			      dada una solución para el problema 2, construimos una \texttt{solución hermana} para el problema 1
+			      dada una solución para el problema 2, construimos una solución para el problema 1
 			      de la siguiente manera: si el nodo $n_{i}$ fue enviado al conjunto $j$, entonces mando al producto
 			      $p_{i}$ al camión $c_{j}$. \\
 			      Supongamos además que para cada conjunto $i$, $peso(i) \leq M$ para algún número $M$. Entonces, 
 			      con nuestra transformación podemos transformar nuestra solución óptima para el problema 2 en una solución
-			      óptima para el problema 1, pues cada conjunto se correspone con un camión, y en el problema 2 se busca
-			      utilizar la menor cantidad de conjuntos posibles (de la misma forma que en el problema 1 se busca
-			      utilizar la menor cantidad de camiones posibles). Sin embargo, si la solución utilizara algún
-			      conjunto $j$ con $peso(j) > M$, entonces
+			      óptima para el problema 1, pues cada conjunto se correspone con un camión. Sin embargo, si la solución 
+			      utilizara algún conjunto $j$ con $peso(j) > M$, entonces
 			      nuestra transformación no generaría una solución válida para el problema 1.
 			  \end{enumerate}
 		
@@ -97,9 +92,9 @@ Desarrollar los siguientes puntos:
 				  aristas de $G$ sino que simplemente se preocupa por hacer un análisis de 
 				  adyacencias y no-adyacencias entre los nodos de dicho grafo.
 				  
-				  Sin embargo, si somos capaces de determinar una $k$-PMP para cualquier grafo $G$, entonces también
-				  somos capaces de determinar la existencia de un $k$-coloreo para cualquier
-				  grafo $G'$.
+				  Sin embargo, si somos capaces de determinar una $k$-PMP para cualquier grafo $G'$, entonces también
+				  somos capaces de determinar un $k$-coloreo para cualquier
+				  grafo $G$.
 				  
 				  Tomemos el grafo $G$ para el cual queremos hallar un $k$-coloreo. Y a partir de dicho grafo, construyamos
 				  un nuevo grafo $G'$ tal que: 
@@ -124,15 +119,18 @@ Desarrollar los siguientes puntos:
 				  
 				  Podemos asegurar que si $C$ es un coloreo válido entonces es óptimo y que si $C$ no es un coloreo válido,
 				  entonces $G$ no es $k$-coloreable. Esto es así porque $C$ es válido si y sólo si se encontró una $k$-PMP de costo
-				  total cero en $G'$: si el costo fuera mayor a cero, debería haber alguna arista que genere parte de este costo, y 
+				  total cero en $G'$: si el costo fuera mayor a cero, como se busca una \textbf{partición de mínimo peso}, debería haber 
+				  alguna arista que genere parte de este costo, y 
 				  las únicas aristas con peso positivo en $G'$ son las que habían en $E(G)$. Y si esta arista genera costo en $G'$, 
 				  quiere decir que $k$-PMP mandó los dos nodos incidentes en dicha arista al mismo conjunto. Entonces, nuestra función
 				  $C$ mandaría a estos dos nodos vecinos al mismo color. Pero entonces el coloreo resultante no sería válido. En cambio,
-				  si el costo total de la solución de $k$-PMP sobre $G'$ fuera cero, entonces nuestra función $C$ generaría un coloreo
+				  si el costo total de la solución de $k$-PMP sobre $G'$ fuera cero, entonces nuestra función $C$ generaría un $k$-coloreo
 				  válido pues como el costo total es cero, sabemos que no se mandan nodos que fueran vecinos en $G$ al mismo conjunto.
 				  Y nuestra función $C$ manda los nodos que están en el mismo conjunto al mismo color.
 				  
 				  Veamos con un ejemplo, en el cuál buscamos un 2-coloreo para $G$ a partir de una 2-PMP de $G'$:
+				  se puede observar cómo en el mismo se evita mandar pares de nodos que eran vecinos en $G$ al mismo conjunto cuando 
+				  se resuelve 2-PMP sobre $G'$, para así obtener una partición de costo mínimo (cero).
 				  
 				  \begin{figure}[H]
 					\begin{minipage}{.6\textwidth}
@@ -157,7 +155,7 @@ Desarrollar los siguientes puntos:
 					\caption{2-PMP para G'}
 					\end{minipage}
 				 \end{figure}
-				  
+			
  
 		      
 			\item Describir situaciones de la vida real que puedan modelarse utilizando k-PMP.
@@ -233,14 +231,13 @@ Desarrollar los siguientes puntos:
 			mucho peso no sumen costo a la solución final.
 			
 			La razón por la cuál elegimos el segundo criterio (para desempatar), es que, si asignamos conjunto
-			primero a los nodos que generan mayor hazard (con mayor suma total de sus aristas incidentes), intentamos
-			agregar siempre en conjuntos distintos a los nodos que potencialmente generan mayor hazard. Así, cada vez que 
-			tengamos que agregar un nuevo nodo a algún conjunto, esperamos tener mayor cantidad de conjuntos en donde 
-			meter dicho nodo sin generar demasiado hazard extra.
+			primero a los nodos que potencialmente pueden generan mayor hazard en un conjunto (con mayor suma total de sus 
+			aristas incidentes), cuando
+			agreguemos un nuevo nodo a la solución, la probabilidad de que ese nodo genere un hazard extra muy grande en todos
+			de los conjuntos sea lo más baja posible.
 			
 			La razón por la cuál elegimos el tercer criterio es similar a la razón del segundo criterio: siempre intentamos que
-			se agreguen en distintos conjuntos los nodos que potencialmente pueden generar más hazard. Y creemos que cuantos más
-			nodos sean adyacentes a un nodo, mayor será la probabilidad que tenga algún vecino de peso alto.
+			se agreguen en distintos conjuntos los nodos que potencialmente pueden generar más hazard.
 			
 			
 		\end{enumerate}
@@ -273,7 +270,7 @@ Desarrollar los siguientes puntos:
 		\end{algorithm}
 		
 		Para devolver la solución en el formato que pide el enunciado, además implementamos la función transformarSolución.
-		A continuación presentamos el pseudocódigo de dicha función.
+		A continuación presentamos el pseudocódigo de dicha función:
 		\begin{algorithm}[H]
 		\SetKwInOut{Input}{input}
 		\SetKwInOut{Output}{output}
@@ -289,7 +286,8 @@ Desarrollar los siguientes puntos:
 		\caption{función transformarSolución}
 		\end{algorithm}
 		
-		Luego, veamos qué hace este algoritmo con un ejemplo:	
+		Veamos más en detalle qué hace este algoritmo con un ejemplo: a continuación, presentamos un grafo $G$ 
+		que podría ser una posible instancia de entrada.
 		\begin{figure}[H]
 		\includegraphics[scale=1]{imagenes/ej2.png}
 		\caption{Instancia 1}
@@ -365,10 +363,11 @@ Desarrollar los siguientes puntos:
 		óptima. Indicar qué tan mala puede ser la solución respecto de la solución óptima.
 		
 		Veamos dos ejemplos en los que nuestra heurística no funciona correctamente. En estos ejemplos,
-		la solución es infinitamente peor que la óptima.
+		pretendemos mostrar que la solución brindada por la heurística puede ser infinitamente más costosa que la solución
+		óptima.
 		
 		En el primer ejemplo, se busca una 2-PMP del grafo $G_{0}$. Dicho grafo es un ciclo de nodos unidos por aristas 
-		de peso infinito y con algunas aristas internas, de peso 1. Como se puede observar en los esquemas,
+		de peso infinito y con algunas aristas internas, de peso 0. Como se puede observar en los esquemas,
 		la heurística proporciona una solución de peso infinito, mientras que la solución óptima tiene peso cero.
 		El problema con el que se encuentra la heurística radica en que se recorren los nodos en cierto orden, y
 		una vez que se coloca cada nodo en algún conjunto, este no puede ser cambiado a otro. En este 
@@ -404,7 +403,7 @@ Desarrollar los siguientes puntos:
 		genera en la solución, se envía $u$ a un conjunto (rojo) y $v$ al otro (azul). Esto hace que, más adelante, para 
 		cada nodo del conjunto B, como está unido tanto a $u$ como a $v$, 
 		no importa si lo agregamos al conjunto rojo o al conjunto azul, en ambos casos el hazard extra que genera
-	    es siempre INF. Esto hace que, al final, nuestra solución no sea la óptima. \\
+	    es siempre INF. Esto hace que, al final, el costo de nuestra solución esté muy lejos del de la óptima. \\
 	    
 	    \begin{figure}[H]
 		\begin{minipage}{.6\textwidth}
@@ -441,7 +440,7 @@ Desarrollar los siguientes puntos:
 			\item mientras haya alguna solución vecina mejor que la actual, actualizamos todos los
 			      conjuntos de nodos y el peso de la solución
 			\item repetimos los dos pasos anteriores hasta que no haya una solución vecina mejor ó, hasta
-			      haberlo repetido una cantidad límite de $x$ veces.
+			      haberlos repetido una cantidad límite de $x$ veces.
 		\end{enumerate}
 		
 		La razón por la cual repetimos el proceso para varias soluciones iniciales es porque dependiendo
@@ -592,7 +591,7 @@ Desarrollar los siguientes puntos:
 			  se llega a que la complejidad es $T(n) = O(n^3) + O(nk) + O(n^3) = O(n^3) $.
 			  
 			  Además, podemos asegurar que la cantidad de iteraciones que se efectúan son como máximo $S$ iteraciones, 
-			  donde $S$ es el peso de la solución aleatoria con la que iniciamos el algoritmo. Esto es así porque en cada
+			  donde $S$ es el peso de la solución aleatoria inicial que le pasamos al algoritmo. Esto es así porque en cada
 			  iteración o se baja en al menos una unidad el costo de la solución y se sigue iterando (hasta llegar como 
 			  máximo a costo cero en cuyo caso finalizamos la búsqueda) ó en alguna iteración no se encuentra ninguna 
 			  solución vecina de costo menor que la solución actual, y se da por finalizada la búsqueda.
@@ -639,22 +638,25 @@ Desarrollar los siguientes puntos:
 			    \item una combinación de ambas
 			  \end{enumerate}
 			  
-			  En nuestro caso, optamos por la opción (b), ya que es la más simple, y no plantea inconvenientes en cuanto a la complejidad 
-			  temporal ni algorítmica que requiere al ser implementada. Es decir, en cada paso no agregamos a un conjunto
+			  En nuestro caso, optamos por la opción (b), por temas de tiempo y porque nos pareció un criterio de selección muy
+			  razonable y fácil de implementar. En cada paso no agregamos a un conjunto
 			  el nodo con máxima arista incidente, sino que nos armamos una lista con los $\beta$ nodos con mayor máxima arista
 			  incidente y elegimos aleatoriamente uno de dichos nodos para agregarlo al conjunto en el que
 			  este genere menor hazard.
 			  
 			  Cada solución obtenida de esta forma será mejorada en el próximo paso del algoritmo mediante 
-			  nuestra heurística de búsqueda local a partir de la vecindad que nos dio mejores resultados. 
-			  Si de esta forma obtenemos una solución mejor que la última mejor solución obtenida, nos guardamos esta nueva solución.
+			  nuestra heurística de búsqueda local, con ambas vecindades. 
+			  Si a partir de alguna de las vecindades obtenemos una solución mejor que la última mejor solución obtenida, 
+			  nos guardamos esta nueva solución.
 			  
 			  Después de esto, el procedimiento continúa generando soluciones con randomized greedy y mejorándolas con búsqueda local,
 			  hasta que se cumpla el criterio de parada elegido, que podría ser, por ejemplo: que no se 
 			  encontró una mejora en las últimas $k$ iteraciones, se alcanzó un límite prefijado de $k$ iteraciones, se obtuvo
 			  una solución cercana cero (que es cota inferior para el costo de cada solución), o que se obtuvo muchas 
-			  veces la misma solución. \\
-			  En nuestro caso, optamos por cortar la búsqueda cuando no se encontró una mejora en las últimas $k$ iteraciones.
+			  veces la misma solución.
+			  
+			  En nuestro caso, optamos por cortar la búsqueda cuando se obtuvo una solución de costo cero, ó cuando se alcanza un límite
+			  prefijado de $k$ iteraciones.
 			  
 			  
 		\item Realizar una experimentación que permita observar los tiempos de ejecución y la calidad de las soluciones
